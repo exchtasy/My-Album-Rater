@@ -369,28 +369,23 @@
 
 <div class="modal-overlay" id="basicModal">
     <div class="modal-box">
-        <h2 id="modalTitle">Album Details</h2>
-
-        <div class="form-group" style="display: flex; gap: 10px;">
-            <input type="text" id="api-search-input" placeholder="Search album on web..." style="flex-grow: 1;">
-            <button class="btn" onclick="searchAlbumAPI()">Find</button>
-        </div>
-        <div id="api-results"></div>
-        
-        <hr style="border: 0; border-bottom: 1px dashed var(--border); margin: 15px 0 20px 0;">
+        <h2 id="modalTitle">Add New Album</h2>
         
         <div class="form-group">
             <label>Album Title</label>
-            <input type="text" id="b-title" placeholder="e.g. Purpose">
+            <input type="text" id="b-title" placeholder="e.g. Blonde">
         </div>
+        
         <div class="form-group">
             <label>Artist</label>
-            <input type="text" id="b-artist" placeholder="e.g. Justin Bieber">
+            <input type="text" id="b-artist" placeholder="e.g. Frank Ocean">
         </div>
+        
         <div class="form-group">
-            <label>Release Year</label>
-            <input type="text" id="b-year" placeholder="e.g. 2015">
+            <label>Release Year (Optional)</label>
+            <input type="text" id="b-year" placeholder="e.g. 2016">
         </div>
+        
         <div class="form-group">
             <label>Album Cover (Image URL)</label>
             <input type="text" id="b-cover" placeholder="Paste image link here...">
@@ -446,11 +441,11 @@
 </div>
 
 <script>
-    // --- THEME INIT (Fixed Key) ---
+    // --- THEME INIT ---
     const savedTheme = localStorage.getItem('myAlbumTheme') || 'light';
     if (savedTheme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
 
-    // --- DATABASE INIT (Fixed Key & Robust Load) ---
+    // --- DATABASE INIT ---
     let albums = [];
     try {
         let savedData = localStorage.getItem('myAlbumRaterData');
@@ -534,66 +529,11 @@
         document.getElementById('b-artist').value = '';
         document.getElementById('b-year').value = '';
         document.getElementById('b-cover').value = '';
-        document.getElementById('api-search-input').value = '';
-        document.getElementById('api-results').innerHTML = '';
         document.getElementById('basicModal').classList.add('active');
     }
 
     function closeBasicModal() {
         document.getElementById('basicModal').classList.remove('active');
-    }
-
-    // --- UPGRADED API SEARCH ---
-    async function searchAlbumAPI() {
-        const query = document.getElementById('api-search-input').value;
-        if (!query) return;
-        const resArea = document.getElementById('api-results');
-        resArea.innerHTML = '<span style="font-size:12px; color:var(--text-light);">Searching MusicBrainz Database...</span>';
-        
-        try {
-            const response = await fetch(`https://musicbrainz.org/ws/2/release/?query=${encodeURIComponent(query)}&fmt=json&limit=15`);
-            const data = await response.json();
-            resArea.innerHTML = '';
-            
-            if (data.releases && data.releases.length > 0) {
-                data.releases.forEach(rel => {
-                    let artist = rel['artist-credit'] ? rel['artist-credit'][0].name : 'Unknown';
-                    let year = rel.date ? rel.date.substring(0, 4) : 'Unknown';
-                    let div = document.createElement('div');
-                    div.className = 'api-result-item';
-                    div.innerHTML = `
-                        <div style="font-size:13px; line-height:1.3; padding: 4px;">
-                            <strong>${rel.title}</strong><br>
-                            <span style="color:var(--text-light);">${artist} • ${year}</span>
-                        </div>
-                    `;
-                    div.onclick = () => {
-                        document.getElementById('b-title').value = rel.title;
-                        document.getElementById('b-artist').value = artist;
-                        document.getElementById('b-year').value = year;
-                        resArea.innerHTML = '<span style="font-size:12px; color:var(--perfect-green); font-weight: 600;">✓ Album info applied! (Tracklist will load when you rate it)</span>';
-                        
-                        // We fetch the tracklist in the background to apply to the album
-                        fetch(`https://musicbrainz.org/ws/2/release/${rel.id}?inc=recordings&fmt=json`)
-                        .then(r => r.json())
-                        .then(trackData => {
-                            if (trackData.media && trackData.media.length > 0 && trackData.media[0].tracks) {
-                                window.pendingAPI_Tracks = trackData.media[0].tracks.map(t => ({
-                                    name: t.title || t.recording.title,
-                                    rating: '', isFav: false, note: '', showNote: false
-                                }));
-                                resArea.innerHTML = `<span style="font-size:12px; color:var(--perfect-green); font-weight: 600;">✓ Successfully queued ${window.pendingAPI_Tracks.length} tracks!</span>`;
-                            }
-                        });
-                    };
-                    resArea.appendChild(div);
-                });
-            } else {
-                resArea.innerHTML = '<div style="padding: 10px; color: var(--text-light); font-size: 13px;">No results found. Try typing both the artist and album name.</div>';
-            }
-        } catch (e) {
-            resArea.innerHTML = '<div class="text-red" style="padding: 10px; font-size: 13px;">Error communicating with server.</div>';
-        }
     }
 
     function saveBasicInfo() {
@@ -607,12 +547,10 @@
             year: document.getElementById('b-year').value.trim() || '',
             cover: document.getElementById('b-cover').value.trim() || 'https://via.placeholder.com/170?text=No+Cover',
             isRated: false,
-            tracks: window.pendingAPI_Tracks || []
+            tracks: []
         };
 
         albums.push(newAlbum);
-        window.pendingAPI_Tracks = null; // Clear pending
-        
         saveToStorage();
         closeBasicModal();
         renderAlbums();
@@ -667,7 +605,6 @@
     }
 
     function switchEditorMode(mode) {
-        // Save current review text before switching
         if (currentEditorMode === 'original') {
             tempReview = document.getElementById('r-review').value;
         } else {
@@ -678,7 +615,6 @@
         document.getElementById('editor-mode-original').classList.toggle('active', mode === 'original');
         document.getElementById('editor-mode-relisten').classList.toggle('active', mode === 'relisten');
 
-        // Load new review text and tracks
         document.getElementById('r-review').value = mode === 'original' ? tempReview : tempReListenReview;
         renderEditorTracks();
         updateLiveRating();
@@ -802,7 +738,7 @@
         album.tracks = tempTracks;
         album.rating = calculateAverage(tempTracks);
         
-        // Save Re-Listen Data ONLY if they actually inputted ratings in that mode
+        // Save Re-Listen Data
         let hasReListen = tempReListenTracks.some(t => t.rating !== '');
         if (hasReListen) {
             album.reListenReview = tempReListenReview;
@@ -973,7 +909,6 @@
             card.className = 'card';
             card.id = `card-wrapper-${album.id}`;
             
-            // Re-listen toggle inside card header (only if relisten data exists)
             let topBarHTML = '';
             if (album.reListenRating) {
                 topBarHTML = `
@@ -1039,7 +974,6 @@
         document.getElementById('statsModal').classList.remove('active');
     }
 
-    // Kick off the initial render immediately
     renderAlbums();
 </script>
 </body>
