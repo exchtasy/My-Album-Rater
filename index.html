@@ -460,6 +460,7 @@
     }
 
     let currentRatingId = null;
+    let editingId = null; // Added to track which album is being edited
     let tempTracks = [];
     let tempReListenTracks = [];
     let tempReview = "";
@@ -523,35 +524,60 @@
         document.getElementById('menu-settings').classList.remove('active');
     }
 
-    // --- MODALS (Add Album) ---
-    function openBasicModal() {
-        document.getElementById('modalTitle').innerText = 'Add New Album';
-        document.getElementById('b-title').value = '';
-        document.getElementById('b-artist').value = '';
-        document.getElementById('b-year').value = '';
-        document.getElementById('b-cover').value = '';
+    // --- MODALS (Add/Edit Album) ---
+    function openBasicModal(id = null) {
+        editingId = id;
+        const title = document.getElementById('modalTitle');
+        
+        if (id) {
+            const album = albums.find(a => a.id === id);
+            title.innerText = 'Edit Album Info';
+            document.getElementById('b-title').value = album.title || '';
+            document.getElementById('b-artist').value = album.artist || '';
+            document.getElementById('b-year').value = album.year || '';
+            document.getElementById('b-cover').value = album.cover || '';
+        } else {
+            title.innerText = 'Add New Album';
+            document.getElementById('b-title').value = '';
+            document.getElementById('b-artist').value = '';
+            document.getElementById('b-year').value = '';
+            document.getElementById('b-cover').value = '';
+        }
         document.getElementById('basicModal').classList.add('active');
     }
 
     function closeBasicModal() {
         document.getElementById('basicModal').classList.remove('active');
+        editingId = null;
     }
 
     function saveBasicInfo() {
         const title = document.getElementById('b-title').value.trim() || 'Unknown Album';
         const artist = document.getElementById('b-artist').value.trim() || 'Unknown Artist';
+        const year = document.getElementById('b-year').value.trim() || '';
+        const cover = document.getElementById('b-cover').value.trim() || 'https://via.placeholder.com/170?text=No+Cover';
 
-        const newAlbum = {
-            id: Date.now().toString(),
-            title: title,
-            artist: artist,
-            year: document.getElementById('b-year').value.trim() || '',
-            cover: document.getElementById('b-cover').value.trim() || 'https://via.placeholder.com/170?text=No+Cover',
-            isRated: false,
-            tracks: []
-        };
+        if (editingId) {
+            // Update existing album
+            const album = albums.find(a => a.id === editingId);
+            album.title = title;
+            album.artist = artist;
+            album.year = year;
+            album.cover = cover;
+        } else {
+            // Create new album
+            const newAlbum = {
+                id: Date.now().toString(),
+                title: title,
+                artist: artist,
+                year: year,
+                cover: cover,
+                isRated: false,
+                tracks: []
+            };
+            albums.push(newAlbum);
+        }
 
-        albums.push(newAlbum);
         saveToStorage();
         closeBasicModal();
         renderAlbums();
@@ -798,12 +824,9 @@
                 
                 if (bigThree.length > 0) {
                     let bigThreeHtml = '';
-                    
-                    // FIXED CROWN: Added flex-shrink: 0, min-width, and adjusted alignment
                     const cleanCrown = `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink: 0; min-width: 13px; margin-right: 6px; margin-top: 3px;"><path d="M3 16l-3-10 7.104 4 4.896-8 4.896 8 7.104-4-3 10h-18zm0 2v4h18v-4h-18z"/></svg>`;
 
                     bigThree.forEach(t => {
-                        // FIXED LIST ITEM: Added align-items: flex-start and word wrapping
                         bigThreeHtml += `<li style="display: flex; align-items: flex-start; margin-bottom: 8px;">${cleanCrown} <span style="line-height: 1.3; word-wrap: break-word; overflow-wrap: break-word;">${t.name}</span></li>`;
                     });
                     
@@ -836,6 +859,7 @@
             }
         }
 
+        // --- EDITED BUTTONS BELOW ---
         return `
             <div class="pf-layout">
                 <div class="pf-label">Albums</div>
@@ -851,10 +875,11 @@
             ${extraContent}
             
             <div class="card-actions">
-                <button class="btn btn-rate" onclick="openRatingEditor('${album.id}')">Edit / Rate Album</button>
+                <button class="btn btn-rate" onclick="openRatingEditor('${album.id}')">Rate Album</button>
                 <div class="menu-container">
                     <button class="dots-btn" onclick="toggleMenu('${album.id}')">⋮</button>
                     <div class="dropdown" id="menu-${album.id}">
+                        <button onclick="openBasicModal('${album.id}')">Edit Info</button>
                         <button class="text-red" onclick="deleteAlbum('${album.id}')">Delete Album</button>
                     </div>
                 </div>
@@ -931,7 +956,7 @@
         });
     }
 
-    // --- STATS LOGIC (Fixed Stacking/Cumulative Top Artist) ---
+    // --- STATS LOGIC ---
     function openStatsModal() {
         const ratedAlbums = albums.filter(a => a.isRated && a.rating !== null);
         const totalRated = ratedAlbums.length;
@@ -943,15 +968,12 @@
         ratedAlbums.forEach(a => {
             sumRatings += parseFloat(a.rating || 0);
             
-            // Initialize Artist Data if they don't exist yet
             if (!artistData[a.artist]) {
                 artistData[a.artist] = { totalCumulativeScore: 0 };
             }
             
-            // Add Album Score
             artistData[a.artist].totalCumulativeScore += parseFloat(a.rating || 0);
 
-            // Add Every Song Score
             if(a.tracks) {
                 a.tracks.forEach(t => {
                     let trackRating = parseFloat(t.rating);
@@ -965,7 +987,6 @@
 
         const globalAvg = totalRated > 0 ? (sumRatings / totalRated).toFixed(1) : '-.-';
         
-        // Find Top Artist strictly mathematically (Highest cumulative points)
         let topArtist = '-';
         let highestScore = -1;
 
