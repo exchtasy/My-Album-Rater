@@ -53,7 +53,7 @@
         #main-view { display: block; }
         #rating-view { display: none; background: var(--bg); min-height: 100vh; }
 
-        /* Header */
+        /* Header Layout */
         .site-header {
             display: flex;
             justify-content: space-between;
@@ -63,28 +63,39 @@
             margin-bottom: 30px;
         }
 
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
         .site-header h1 { font-weight: 700; font-size: 26px; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;}
-        .header-actions { display: flex; gap: 10px; align-items: center; }
 
         /* Buttons & Controls */
         .btn {
             background-color: var(--accent); color: var(--bg);
-            border: none; padding: 10px 20px; border-radius: 4px;
-            font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s; font-family: 'Jost', sans-serif;
+            border: none; padding: 8px 16px; border-radius: 4px;
+            font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s; font-family: 'Jost', sans-serif;
         }
         .btn:hover { opacity: 0.8; }
         .btn-outline { background-color: transparent; color: var(--text); border: 1px solid var(--border); }
         .btn-outline:hover { background-color: var(--surface); }
 
         select.control-select {
-            padding: 8px 12px; border: 1px solid var(--border); border-radius: 4px;
+            padding: 6px 10px; border: 1px solid var(--border); border-radius: 4px;
             background-color: var(--surface); color: var(--text); font-family: inherit;
-            font-size: 13px; font-weight: 500; cursor: pointer; outline: none;
+            font-size: 12px; font-weight: 500; cursor: pointer; outline: none;
         }
 
         /* Controls Section */
         .controls-container {
-            display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;
+            display: flex; justify-content: flex-end; align-items: center; margin-bottom: 30px;
             padding-bottom: 15px; border-bottom: 1px dashed var(--border);
         }
         .filters { display: flex; gap: 10px; }
@@ -183,7 +194,7 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-radius: 4px;
             z-index: 10; min-width: 140px; overflow: hidden; margin-bottom: 5px;
         }
-        .settings-dropdown .dropdown { bottom: auto; top: 100%; margin-top: 5px; margin-bottom: 0; }
+        .settings-dropdown .dropdown { bottom: auto; top: 100%; margin-top: 5px; margin-bottom: 0; left: 0; right: auto; }
         
         .dropdown.active { display: block; }
         .dropdown button, .dropdown label.import-label {
@@ -225,7 +236,6 @@
             font-size: 26px; font-family: Georgia, serif; font-weight: 700;
             color: var(--text); line-height: 1.1;
         }
-        .stat-card-value.perfect { color: var(--perfect-green); }
 
         /* Form Inputs */
         .form-group { margin-bottom: 15px; }
@@ -293,8 +303,8 @@
 <div id="main-view">
     <div class="container">
         <div class="site-header">
-            <h1>My Album Rater</h1>
-            <div class="header-actions">
+            <div class="header-left">
+                <h1>My Album Rater</h1>
                 <div class="settings-dropdown">
                     <button class="btn btn-outline" onclick="toggleMenu('settings')">⚙️ Settings</button>
                     <div class="dropdown" id="menu-settings">
@@ -306,13 +316,16 @@
                     </div>
                 </div>
                 <button class="btn btn-outline" onclick="toggleTheme()">🌓 Theme</button>
+            </div>
+            
+            <div class="header-right">
                 <button class="btn btn-outline" onclick="openStatsModal()">📊 Stats</button>
                 <button class="btn" onclick="openBasicModal()">+ Add Album</button>
             </div>
         </div>
 
+        <!-- Filtering & Sorting -->
         <div class="controls-container">
-            <div style="font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">My Library</div>
             <div class="filters">
                 <select class="control-select" id="filter-select" onchange="handleFilter(this.value)">
                     <option value="all">Show: All Albums</option>
@@ -333,12 +346,14 @@
     </div>
 </div>
 
+<!-- Stats Modal -->
 <div class="modal-overlay" id="statsModal">
     <div class="modal-box" style="max-width: 500px;">
         <h2 style="text-align: center; font-family: Georgia, serif; font-style: italic; margin-bottom: 25px;">Library Analytics</h2>
         
         <div class="stats-grid" id="stats-grid-content">
-            </div>
+            <!-- Dynamically Populated by JS -->
+        </div>
 
         <div class="modal-actions" style="justify-content: center; margin-top: 20px;">
             <button class="btn btn-outline" style="width: 100%;" onclick="closeStatsModal()">Close</button>
@@ -346,6 +361,7 @@
     </div>
 </div>
 
+<!-- Basic Info Modal -->
 <div class="modal-overlay" id="basicModal">
     <div class="modal-box">
         <h2 id="modalTitle">Album Details</h2>
@@ -447,28 +463,58 @@
         const ratedAlbums = albums.filter(a => a.isRated && a.rating !== null);
         const totalRated = ratedAlbums.length;
         
-        let sumRatings = 0;
-        let perfects = 0;
-        let artistCounts = {};
+        let sumAlbumRatings = 0;
+        let perfectSongs = 0;
+        let artistStats = {};
 
-        ratedAlbums.forEach(a => {
+        // Calculate Stats
+        albums.forEach(a => {
+            const isAlbumRated = a.isRated && a.rating !== null;
             const r = parseFloat(a.rating);
-            if (!isNaN(r)) {
-                sumRatings += r;
-                if (r === 5.0) {
-                    perfects++;
-                    artistCounts[a.artist] = (artistCounts[a.artist] || 0) + 1;
-                }
+            
+            if (!artistStats[a.artist]) {
+                artistStats[a.artist] = { albumCount: 0, albumSum: 0, trackCount: 0, trackSum: 0, perfects: 0 };
+            }
+
+            if (isAlbumRated && !isNaN(r)) {
+                sumAlbumRatings += r;
+                artistStats[a.artist].albumCount++;
+                artistStats[a.artist].albumSum += r;
+                if (r === 5.0) artistStats[a.artist].perfects += 2; // Extra weight for a perfect album
+            }
+
+            if (a.tracks && a.tracks.length > 0) {
+                a.tracks.forEach(t => {
+                    const tr = parseFloat(t.rating);
+                    if (!isNaN(tr)) {
+                        artistStats[a.artist].trackCount++;
+                        artistStats[a.artist].trackSum += tr;
+                        if (tr === 5.0) {
+                            perfectSongs++;
+                            artistStats[a.artist].perfects++; // Weight for perfect song
+                        }
+                    }
+                });
             }
         });
 
-        const globalAvg = totalRated > 0 ? (sumRatings / totalRated).toFixed(1) : '-.-';
+        const globalAvg = totalRated > 0 ? (sumAlbumRatings / totalRated).toFixed(1) : '-.-';
         
         let topArtist = '-';
-        let max5s = 0;
-        for (let artist in artistCounts) {
-            if (artistCounts[artist] > max5s) {
-                max5s = artistCounts[artist];
+        let maxPowerScore = -1;
+
+        // Determine Top Artist based on most 5s, best song avg, and best album avg
+        for (let artist in artistStats) {
+            let stats = artistStats[artist];
+            let avgAlbum = stats.albumCount > 0 ? (stats.albumSum / stats.albumCount) : 0;
+            let avgTrack = stats.trackCount > 0 ? (stats.trackSum / stats.trackCount) : 0;
+            
+            // Power Score Formula
+            let powerScore = (stats.perfects * 2) + (avgAlbum * 3) + (avgTrack * 1);
+            
+            // Need at least SOME rated material to qualify
+            if (powerScore > maxPowerScore && (stats.albumCount > 0 || stats.trackCount > 0)) {
+                maxPowerScore = powerScore;
                 topArtist = artist;
             }
         }
@@ -483,8 +529,8 @@
                 <div class="stat-card-value">${globalAvg}</div>
             </div>
             <div class="stat-card">
-                <div class="stat-card-title">Perfect Scores</div>
-                <div class="stat-card-value perfect-text">${perfects}</div>
+                <div class="stat-card-title">Perfect Scores <span style="font-size: 9px; opacity: 0.6; text-transform: lowercase;">(songs)</span></div>
+                <div class="stat-card-value" style="color: var(--perfect-green);">${perfectSongs}</div>
             </div>
             <div class="stat-card">
                 <div class="stat-card-title">Top Artist</div>
