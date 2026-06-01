@@ -60,13 +60,13 @@
             align-items: center;
             border-bottom: 2px solid var(--text);
             padding-bottom: 20px;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
         }
 
         .site-header h1 { font-weight: 700; font-size: 26px; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;}
-        .header-actions { display: flex; gap: 10px; }
+        .header-actions { display: flex; gap: 10px; align-items: center; }
 
-        /* Buttons */
+        /* Buttons & Controls */
         .btn {
             background-color: var(--accent); color: var(--bg);
             border: none; padding: 10px 20px; border-radius: 4px;
@@ -76,12 +76,37 @@
         .btn-outline { background-color: transparent; color: var(--text); border: 1px solid var(--border); }
         .btn-outline:hover { background-color: var(--surface); }
 
+        select.control-select {
+            padding: 8px 12px; border: 1px solid var(--border); border-radius: 4px;
+            background-color: var(--surface); color: var(--text); font-family: inherit;
+            font-size: 13px; font-weight: 500; cursor: pointer; outline: none;
+        }
+
+        /* Stats Dashboard */
+        .stats-container {
+            display: flex; gap: 15px; margin-bottom: 30px; flex-wrap: wrap;
+        }
+        .stat-box {
+            flex: 1; min-width: 120px; background: var(--card-bg); border: 1px solid var(--border);
+            padding: 15px; border-radius: 6px; text-align: center;
+        }
+        .stat-value { font-size: 24px; font-weight: 700; color: var(--text); margin-bottom: 5px; }
+        .stat-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: var(--text-light); }
+        .stat-value.perfect-text { color: var(--perfect-green); }
+
+        /* Controls Section */
+        .controls-container {
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;
+            padding-bottom: 15px; border-bottom: 1px dashed var(--border);
+        }
+        .filters { display: flex; gap: 10px; }
+
         /* Grid */
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
             gap: 40px;
-            align-items: start;
+            /* Removed align-items: start; so cards stretch to match heights */
         }
 
         /* --- PITCHFORK LAYOUT --- */
@@ -97,7 +122,7 @@
         }
         .pf-title {
             font-family: Georgia, serif; font-style: italic; font-weight: 700;
-            font-size: 36px; margin: 0 0 10px 0; text-align: center; color: var(--text);
+            font-size: 36px; margin: 0 0 10px 0; text-align: center; color: var(--text); line-height: 1.1;
         }
         .pf-artist {
             font-size: 20px; font-weight: 500; text-decoration: underline;
@@ -121,6 +146,7 @@
             width: 95px; height: 95px; border-radius: 50%;
             border: 5px solid var(--text); display: flex; align-items: center;
             justify-content: center; font-size: 34px; font-weight: 700; color: var(--text);
+            background: var(--card-bg);
         }
         .pf-badge.perfect { border-color: var(--perfect-green); color: var(--perfect-green); }
         .pf-badge.unrated { border-color: var(--border); color: var(--text-light); font-size: 24px;}
@@ -132,6 +158,7 @@
             background: var(--card-bg);
             display: flex; flex-direction: column;
             transition: background-color 0.3s, border-color 0.3s;
+            height: 100%; box-sizing: border-box; /* Forces row alignment */
         }
         
         .card-content { flex-grow: 1; }
@@ -149,30 +176,35 @@
         /* Card Actions & Three Dots Menu */
         .card-actions {
             display: flex; justify-content: space-between; align-items: center;
-            margin-top: 25px; padding-top: 20px; border-top: 1px solid var(--border);
+            margin-top: auto; padding-top: 20px; border-top: 1px solid var(--border);
         }
         .btn-rate { flex-grow: 1; margin-right: 10px; background-color: var(--text); color: var(--bg); }
         .btn-rate:hover { opacity: 0.8; }
         
         .menu-container { position: relative; }
+        .settings-dropdown { position: relative; } /* Used for top settings gear */
+        
         .dots-btn {
             background: none; border: none; font-size: 22px; cursor: pointer;
             padding: 5px 10px; color: var(--text); transition: 0.2s;
         }
         .dots-btn:hover { background: var(--surface); border-radius: 4px; }
+        
         .dropdown {
             display: none; position: absolute; right: 0; bottom: 100%;
             background: var(--card-bg); border: 1px solid var(--border);
             box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-radius: 4px;
-            z-index: 10; min-width: 130px; overflow: hidden; margin-bottom: 5px;
+            z-index: 10; min-width: 140px; overflow: hidden; margin-bottom: 5px;
         }
+        .settings-dropdown .dropdown { bottom: auto; top: 100%; margin-top: 5px; margin-bottom: 0; }
+        
         .dropdown.active { display: block; }
-        .dropdown button {
+        .dropdown button, .dropdown label.import-label {
             display: block; width: 100%; text-align: left; padding: 10px 15px;
             background: none; border: none; font-size: 13px; cursor: pointer;
-            font-family: inherit; color: var(--text);
+            font-family: inherit; color: var(--text); box-sizing: border-box;
         }
-        .dropdown button:hover { background: var(--surface); }
+        .dropdown button:hover, .dropdown label.import-label:hover { background: var(--surface); }
         .text-red { color: #d93025 !important; }
 
         /* --- BASIC INFO MODAL --- */
@@ -208,7 +240,6 @@
         /* Tracklist Editor */
         .track-list-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--text); padding-bottom: 10px; margin-bottom: 15px; }
         
-        /* Note Badge added specifically to track wrapper */
         .track-wrapper { position: relative; margin-top: 15px; }
         .note-badge {
             position: absolute; top: -8px; left: 30px;
@@ -257,9 +288,44 @@
             <h1>My Album Rater</h1>
             <div class="header-actions">
                 <button class="btn btn-outline" onclick="toggleTheme()">🌓 Theme</button>
+                <div class="settings-dropdown">
+                    <button class="btn btn-outline" onclick="toggleMenu('settings')">⚙️ Settings</button>
+                    <div class="dropdown" id="menu-settings">
+                        <button onclick="exportData()">⬇️ Export Backup</button>
+                        <label class="import-label">
+                            ⬆️ Import Backup
+                            <input type="file" style="display:none" accept=".json" onchange="importData(event)">
+                        </label>
+                    </div>
+                </div>
                 <button class="btn" onclick="openBasicModal()">+ Add Album</button>
             </div>
         </div>
+
+        <!-- Stats Section -->
+        <div class="stats-container" id="stats-container">
+            <!-- Populated via JS -->
+        </div>
+
+        <!-- Filtering & Sorting -->
+        <div class="controls-container">
+            <div style="font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">My Library</div>
+            <div class="filters">
+                <select class="control-select" id="filter-select" onchange="handleFilter(this.value)">
+                    <option value="all">Show: All Albums</option>
+                    <option value="rated">Rated Only</option>
+                    <option value="unrated">Unrated Only</option>
+                </select>
+                <select class="control-select" id="sort-select" onchange="handleSort(this.value)">
+                    <option value="default">Sort: Date Added (Default)</option>
+                    <option value="score-high">Highest Rated</option>
+                    <option value="score-low">Lowest Rated</option>
+                    <option value="year-new">Release Year</option>
+                    <option value="artist-az">Artist (A-Z)</option>
+                </select>
+            </div>
+        </div>
+
         <div class="grid" id="albumGrid"></div>
     </div>
 </div>
@@ -339,7 +405,7 @@
         localStorage.setItem('myAlbumTheme', newTheme);
     }
 
-    // --- DATABASE (With Safety Net) ---
+    // --- DATABASE ---
     let albums = [];
     try {
         let savedData = localStorage.getItem('myAlbumRaterData');
@@ -355,18 +421,140 @@
     let editingId = null; 
     let currentRatingId = null;
     let tempTracks = [];
+    
+    // Sort & Filter States
+    let currentSort = 'default';
+    let currentFilter = 'all';
+
+    // --- STATS LOGIC ---
+    function renderStats() {
+        const ratedAlbums = albums.filter(a => a.isRated && a.rating !== null);
+        const totalRated = ratedAlbums.length;
+        
+        let sumRatings = 0;
+        let perfects = 0;
+        let artistCounts = {};
+
+        ratedAlbums.forEach(a => {
+            const r = parseFloat(a.rating);
+            if (!isNaN(r)) {
+                sumRatings += r;
+                if (r === 5.0) {
+                    perfects++;
+                    artistCounts[a.artist] = (artistCounts[a.artist] || 0) + 1;
+                }
+            }
+        });
+
+        const globalAvg = totalRated > 0 ? (sumRatings / totalRated).toFixed(1) : '-.-';
+        
+        let topArtist = '-';
+        let max5s = 0;
+        for (let artist in artistCounts) {
+            if (artistCounts[artist] > max5s) {
+                max5s = artistCounts[artist];
+                topArtist = artist;
+            }
+        }
+
+        document.getElementById('stats-container').innerHTML = `
+            <div class="stat-box">
+                <div class="stat-value">${totalRated}</div>
+                <div class="stat-label">Albums Rated</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value">${globalAvg}</div>
+                <div class="stat-label">Global Avg Score</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value perfect-text">${perfects}</div>
+                <div class="stat-label">Perfect 5.0s</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" style="font-size:18px; margin-top:5px;">${topArtist}</div>
+                <div class="stat-label">Top Artist (Most 5s)</div>
+            </div>
+        `;
+    }
+
+    // --- SORTING & FILTERING ---
+    function handleSort(val) {
+        currentSort = val;
+        renderGrid();
+    }
+
+    function handleFilter(val) {
+        currentFilter = val;
+        renderGrid();
+    }
+
+    // --- IMPORT / EXPORT LOGIC ---
+    function exportData() {
+        const dataStr = JSON.stringify(albums, null, 2);
+        const blob = new Blob([dataStr], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = "my_album_rater_backup.json";
+        a.click();
+        URL.revokeObjectURL(url);
+        document.getElementById('menu-settings').classList.remove('active');
+    }
+
+    function importData(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const importedData = JSON.parse(e.target.result);
+                if (Array.isArray(importedData)) {
+                    albums = importedData;
+                    saveToStorage();
+                    renderGrid();
+                    alert("Backup imported successfully!");
+                } else {
+                    alert("Invalid backup file format.");
+                }
+            } catch(err) {
+                alert("Error reading file. Make sure it's a valid JSON backup.");
+            }
+        };
+        reader.readAsText(file);
+        document.getElementById('menu-settings').classList.remove('active');
+    }
 
     // --- RENDER MAIN GRID ---
     function renderGrid() {
         const grid = document.getElementById('albumGrid');
         grid.innerHTML = '';
         
-        if (albums.length === 0) {
-            grid.innerHTML = '<p style="color: var(--text-light);">No albums yet. Click "+ Add Album" to get started.</p>';
+        // Update stats
+        renderStats();
+
+        // Apply Filters
+        let displayAlbums = [...albums];
+        if (currentFilter === 'rated') displayAlbums = displayAlbums.filter(a => a.isRated);
+        if (currentFilter === 'unrated') displayAlbums = displayAlbums.filter(a => !a.isRated);
+
+        // Apply Sorting
+        if (currentSort === 'score-high') {
+            displayAlbums.sort((a,b) => parseFloat(b.rating || 0) - parseFloat(a.rating || 0));
+        } else if (currentSort === 'score-low') {
+            displayAlbums.sort((a,b) => parseFloat(a.rating || 6) - parseFloat(b.rating || 6)); // unrated go to bottom
+        } else if (currentSort === 'year-new') {
+            displayAlbums.sort((a,b) => parseInt(b.year || 0) - parseInt(a.year || 0));
+        } else if (currentSort === 'artist-az') {
+            displayAlbums.sort((a,b) => (a.artist || '').localeCompare(b.artist || ''));
+        }
+
+        if (displayAlbums.length === 0) {
+            grid.innerHTML = '<p style="color: var(--text-light);">No albums match this view.</p>';
             return;
         }
 
-        albums.forEach(album => {
+        displayAlbums.forEach(album => {
             const card = document.createElement('div');
             card.className = 'card';
             
@@ -443,7 +631,7 @@
     }
     
     document.addEventListener('click', function(e) {
-        if (!e.target.matches('.dots-btn')) {
+        if (!e.target.closest('.menu-container') && !e.target.closest('.settings-dropdown')) {
             document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('active'));
         }
     });
@@ -550,7 +738,6 @@
             const noteIcon = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>`;
             const noteAreaStyle = track.showNote ? 'active' : '';
             
-            // Generate the "Note Added" badge if there is text in the note field safely
             const badgeHtml = (track.note && track.note.trim() !== '') ? `<div class="note-badge">Note Added</div>` : '';
 
             rowWrapper.innerHTML = `
