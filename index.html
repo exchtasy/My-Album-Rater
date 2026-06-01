@@ -446,7 +446,23 @@
 </div>
 
 <script>
-    let albums = JSON.parse(localStorage.getItem('myAlbumRater_data')) || [];
+    // --- THEME INIT (Fixed Key) ---
+    const savedTheme = localStorage.getItem('myAlbumTheme') || 'light';
+    if (savedTheme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+
+    // --- DATABASE INIT (Fixed Key & Robust Load) ---
+    let albums = [];
+    try {
+        let savedData = localStorage.getItem('myAlbumRaterData');
+        if (savedData) {
+            albums = JSON.parse(savedData);
+            if (!Array.isArray(albums)) albums = [];
+        }
+    } catch (e) {
+        console.error("Safe load failed:", e);
+        albums = [];
+    }
+
     let currentRatingId = null;
     let tempTracks = [];
     let tempReListenTracks = [];
@@ -454,24 +470,17 @@
     let tempReListenReview = "";
     let currentEditorMode = 'original'; // 'original' or 'relisten'
 
-    // --- INITIALIZATION ---
-    document.addEventListener('DOMContentLoaded', () => {
-        if (localStorage.getItem('myAlbumRater_theme') === 'dark') {
-            document.documentElement.setAttribute('data-theme', 'dark');
-        }
-        renderAlbums();
-    });
-
     function saveToStorage() {
-        localStorage.setItem('myAlbumRater_data', JSON.stringify(albums));
+        localStorage.setItem('myAlbumRaterData', JSON.stringify(albums));
     }
 
     // --- THEME & MENUS ---
     function toggleTheme() {
         const root = document.documentElement;
-        const newTheme = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        const currentTheme = root.getAttribute('data-theme') || 'light';
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
         root.setAttribute('data-theme', newTheme);
-        localStorage.setItem('myAlbumRater_theme', newTheme);
+        localStorage.setItem('myAlbumTheme', newTheme);
     }
 
     function toggleMenu(menuId) {
@@ -480,7 +489,7 @@
     }
 
     document.addEventListener('click', (e) => {
-        if (!e.target.closest('.settings-dropdown')) {
+        if (!e.target.closest('.settings-dropdown') && !e.target.closest('.menu-container')) {
             document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('active'));
         }
     });
@@ -494,6 +503,7 @@
         document.body.appendChild(anchor);
         anchor.click();
         anchor.remove();
+        document.getElementById('menu-settings').classList.remove('active');
     }
 
     function importData(event) {
@@ -514,6 +524,7 @@
             }
         };
         reader.readAsText(file);
+        document.getElementById('menu-settings').classList.remove('active');
     }
 
     // --- MODALS (Add Album) ---
@@ -537,10 +548,9 @@
         const query = document.getElementById('api-search-input').value;
         if (!query) return;
         const resArea = document.getElementById('api-results');
-        resArea.innerHTML = 'Searching...';
+        resArea.innerHTML = '<span style="font-size:12px; color:var(--text-light);">Searching MusicBrainz Database...</span>';
         
         try {
-            // Increased limit to 15 to catch popular albums that have many variants
             const response = await fetch(`https://musicbrainz.org/ws/2/release/?query=${encodeURIComponent(query)}&fmt=json&limit=15`);
             const data = await response.json();
             resArea.innerHTML = '';
@@ -551,13 +561,30 @@
                     let year = rel.date ? rel.date.substring(0, 4) : 'Unknown';
                     let div = document.createElement('div');
                     div.className = 'api-result-item';
-                    div.innerHTML = `<strong>${rel.title}</strong> - ${artist} (${year})`;
+                    div.innerHTML = `
+                        <div style="font-size:13px; line-height:1.3; padding: 4px;">
+                            <strong>${rel.title}</strong><br>
+                            <span style="color:var(--text-light);">${artist} • ${year}</span>
+                        </div>
+                    `;
                     div.onclick = () => {
                         document.getElementById('b-title').value = rel.title;
                         document.getElementById('b-artist').value = artist;
                         document.getElementById('b-year').value = year;
-                        resArea.innerHTML = '';
-                        document.getElementById('api-search-input').value = '';
+                        resArea.innerHTML = '<span style="font-size:12px; color:var(--perfect-green); font-weight: 600;">✓ Album info applied! (Tracklist will load when you rate it)</span>';
+                        
+                        // We fetch the tracklist in the background to apply to the album
+                        fetch(`https://musicbrainz.org/ws/2/release/${rel.id}?inc=recordings&fmt=json`)
+                        .then(r => r.json())
+                        .then(trackData => {
+                            if (trackData.media && trackData.media.length > 0 && trackData.media[0].tracks) {
+                                window.pendingAPI_Tracks = trackData.media[0].tracks.map(t => ({
+                                    name: t.title || t.recording.title,
+                                    rating: '', isFav: false, note: '', showNote: false
+                                }));
+                                resArea.innerHTML = `<span style="font-size:12px; color:var(--perfect-green); font-weight: 600;">✓ Successfully queued ${window.pendingAPI_Tracks.length} tracks!</span>`;
+                            }
+                        });
                     };
                     resArea.appendChild(div);
                 });
@@ -570,24 +597,22 @@
     }
 
     function saveBasicInfo() {
-        const title = document.getElementById('b-title').value.trim();
-        const artist = document.getElementById('b-artist').value.trim();
-        if (!title || !artist) {
-            alert('Title and Artist are required!');
-            return;
-        }
+        const title = document.getElementById('b-title').value.trim() || 'Unknown Album';
+        const artist = document.getElementById('b-artist').value.trim() || 'Unknown Artist';
 
         const newAlbum = {
             id: Date.now().toString(),
             title: title,
             artist: artist,
-            year: document.getElementById('b-year').value.trim() || 'Unknown',
-            cover: document.getElementById('b-cover').value.trim() || 'https://via.placeholder.com/300?text=No+Cover',
+            year: document.getElementById('b-year').value.trim() || '',
+            cover: document.getElementById('b-cover').value.trim() || 'https://via.placeholder.com/170?text=No+Cover',
             isRated: false,
-            dateAdded: new Date().toISOString()
+            tracks: window.pendingAPI_Tracks || []
         };
 
         albums.push(newAlbum);
+        window.pendingAPI_Tracks = null; // Clear pending
+        
         saveToStorage();
         closeBasicModal();
         renderAlbums();
@@ -603,12 +628,13 @@
         tempReview = album.review || "";
         
         // Load relisten data, or create a blank slate using the original track names
-        if (album.reListenTracks) {
+        if (album.reListenTracks && album.reListenTracks.length > 0) {
             tempReListenTracks = JSON.parse(JSON.stringify(album.reListenTracks));
         } else {
             tempReListenTracks = tempTracks.map(t => ({
                 name: t.name,
                 rating: '',
+                isFav: false,
                 note: '',
                 showNote: false
             }));
@@ -618,7 +644,7 @@
         document.getElementById('r-title').innerText = album.title;
         document.getElementById('r-artist').innerText = album.artist;
         document.getElementById('r-year').innerText = album.year;
-        document.getElementById('r-cover').src = album.cover;
+        document.getElementById('r-cover').src = album.cover || 'https://via.placeholder.com/170?text=No+Cover';
         
         // Always open in 'original' mode first
         currentEditorMode = 'original';
@@ -670,17 +696,30 @@
         tracks.forEach((t, index) => {
             const row = document.createElement('div');
             row.className = 'track-wrapper';
+            
+            const starClass = t.isFav ? 'active' : '';
+            const noteIcon = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>`;
+            const badgeHtml = (t.note && t.note.trim() !== '') ? `<div class="note-badge">Note Added</div>` : '';
+
             row.innerHTML = `
+                ${badgeHtml}
                 <div class="track-row">
                     <div class="track-num">${index + 1}.</div>
-                    <input type="text" class="track-name-input" value="${t.name}" onchange="updateTrackName(${index}, this.value)" placeholder="Track title...">
+                    <input type="text" class="track-name-input" value="${t.name || ''}" onchange="updateTrackName(${index}, this.value)" placeholder="Track title...">
                     
-                    <button class="icon-btn" onclick="toggleNote(${index})" title="Add Note/Review">💬</button>
+                    <input type="number" class="track-rating-input" value="${t.rating || ''}" step="0.1" min="0" max="5" oninput="updateTrackRating(${index}, this.value)">
                     
-                    <input type="number" class="track-rating-input" value="${t.rating}" step="0.1" min="0" max="5" oninput="updateTrackRating(${index}, this.value)">
-                    <button class="icon-btn text-red" onclick="removeTrack(${index})" title="Delete Track">✕</button>
+                    <button class="icon-btn" onclick="toggleFav(${index})" title="Favorite Track">
+                        <span class="star-icon ${starClass}">★</span>
+                    </button>
+                    
+                    <button class="icon-btn" onclick="toggleNote(${index})" title="Add Note">
+                        ${noteIcon}
+                    </button>
+                    
+                    <button class="icon-btn" style="color: #d93025; font-size:18px;" onclick="removeTrack(${index})" title="Remove">×</button>
                 </div>
-                <div class="track-note-wrapper ${t.showNote || t.note ? 'active' : ''}">
+                <div class="track-note-wrapper ${t.showNote ? 'active' : ''}">
                     <input type="text" class="track-note-input" value="${t.note || ''}" placeholder="Thoughts on this track..." onchange="updateTrackNote(${index}, this.value)">
                 </div>
             `;
@@ -690,7 +729,7 @@
 
     function addTrack() {
         let tracks = getActiveTracks();
-        tracks.push({ name: '', rating: '', note: '', showNote: false });
+        tracks.push({ name: '', rating: '', isFav: false, note: '', showNote: false });
         renderEditorTracks();
     }
     
@@ -702,14 +741,26 @@
     }
 
     function updateTrackName(index, val) { getActiveTracks()[index].name = val; }
-    function updateTrackNote(index, val) { getActiveTracks()[index].note = val; }
+    function updateTrackNote(index, val) { getActiveTracks()[index].note = val; renderEditorTracks(); }
+    
     function toggleNote(index) { 
         let tracks = getActiveTracks();
         tracks[index].showNote = !tracks[index].showNote; 
         renderEditorTracks(); 
     }
+    
+    function toggleFav(index) {
+        let tracks = getActiveTracks();
+        tracks[index].isFav = !tracks[index].isFav;
+        renderEditorTracks();
+    }
 
     function updateTrackRating(index, val) {
+        if (val !== '') {
+            let num = parseFloat(val);
+            if (num > 5) val = '5';
+            else if (num < 0) val = '0';
+        }
         getActiveTracks()[index].rating = val;
         updateLiveRating();
     }
@@ -771,7 +822,7 @@
 
     // --- HOMEPAGE RENDERING & CARD TOGGLES ---
     function deleteAlbum(id) {
-        if(confirm("Are you sure you want to delete this album?")) {
+        if(confirm("Are you sure you want to delete this album? This cannot be undone.")) {
             albums = albums.filter(a => a.id !== id);
             saveToStorage();
             renderAlbums();
@@ -780,9 +831,14 @@
 
     function getBigThree(tracks) {
         if(!tracks || tracks.length === 0) return [];
-        let valid = tracks.filter(t => t.rating !== "" && !isNaN(parseFloat(t.rating)));
+        let valid = tracks.filter(t => t.rating !== "" && t.rating !== null && !isNaN(parseFloat(t.rating)));
         valid.sort((a, b) => parseFloat(b.rating) - parseFloat(a.rating));
         return valid.slice(0, 3);
+    }
+    
+    function getFavs(tracks) {
+        if(!tracks || tracks.length === 0) return [];
+        return tracks.filter(t => t.isFav);
     }
 
     function getCardContentHTML(album, mode) {
@@ -791,48 +847,77 @@
         let review = isRelisten ? album.reListenReview : album.review;
         let tracks = isRelisten ? album.reListenTracks : album.tracks;
         
-        let badgeClass = rating === '5.0' ? 'pf-badge perfect' : 'pf-badge';
-        if (!rating) badgeClass = 'pf-badge unrated';
+        let ratingStr = rating ? parseFloat(rating).toFixed(1) : null;
+        let badgeClass = ratingStr === '5.0' ? 'pf-badge perfect' : 'pf-badge';
+        if (!ratingStr || isNaN(ratingStr)) badgeClass = 'pf-badge unrated';
         
-        let bigThree = getBigThree(tracks);
-        let bigThreeHTML = '<div class="section-label">The Big Three</div>';
+        let extraContent = '';
         
-        if(bigThree.length > 0) {
-            bigThreeHTML += '<ul class="big-three-list">';
-            bigThree.forEach((t, i) => {
-                let crown = i === 0 ? '👑' : i === 1 ? '🥈' : '🥉';
-                bigThreeHTML += `<li><span class="crown-icon">${crown}</span> <strong>${parseFloat(t.rating).toFixed(1)}</strong> - ${t.name}</li>`;
-            });
-            bigThreeHTML += '</ul>';
-        } else {
-            bigThreeHTML += '<div style="font-size:13px; color:var(--text-light);">No ratings yet.</div>';
+        if (album.isRated) {
+            if (review) {
+                extraContent += `<div class="section-label">Review</div><div class="card-review">"${review.replace(/\n/g, '<br>')}"</div>`;
+            }
+
+            let favs = getFavs(tracks);
+            let bigThree = getBigThree(tracks);
+            
+            if (favs.length > 0 || bigThree.length > 0) {
+                let flexHtml = `<div class="card-highlights-container">`;
+                
+                if (bigThree.length > 0) {
+                    let bigThreeHtml = '';
+                    bigThree.forEach(t => {
+                        bigThreeHtml += `<li><span class="crown-icon">♛</span> <span>${t.name}</span></li>`;
+                    });
+                    
+                    flexHtml += `
+                        <div class="highlight-col">
+                            <div class="section-label" style="margin-top: 0;">Big Three <span style="text-transform: none; font-size: 9px; opacity: 0.6; font-weight: normal;">(Highest Rated)</span></div>
+                            <div class="card-favs">
+                                <ul class="big-three-list">${bigThreeHtml}</ul>
+                            </div>
+                        </div>`;
+                }
+                
+                if (favs.length > 0) {
+                    let favsHtml = '';
+                    favs.forEach(t => {
+                        favsHtml += `<li>${t.name || 'Unknown Track'}</li>`;
+                    });
+                    
+                    flexHtml += `
+                        <div class="highlight-col">
+                            <div class="section-label" style="margin-top: 0;">Favorite Tracks</div>
+                            <div class="card-favs">
+                                <ul>${favsHtml}</ul>
+                            </div>
+                        </div>`;
+                }
+                
+                flexHtml += `</div>`;
+                extraContent += flexHtml;
+            }
         }
 
         return `
             <div class="pf-layout">
-                <div class="pf-label">ALBUM</div>
+                <div class="pf-label">Albums</div>
                 <div class="pf-title">${album.title}</div>
                 <div class="pf-artist">${album.artist}</div>
                 <div class="pf-year">${album.year}</div>
                 <div class="pf-showcase">
-                    <img src="${album.cover}" class="pf-cover" onerror="this.src='https://via.placeholder.com/300?text=No+Cover'">
-                    <div class="${badgeClass}">${rating || '-.-'}</div>
+                    <img src="${album.cover || 'https://via.placeholder.com/170?text=No+Cover'}" class="pf-cover" alt="Cover">
+                    <div class="${badgeClass}">${ratingStr || '-.-'}</div>
                 </div>
             </div>
             
-            ${review ? `<div class="card-review">"${review.replace(/\n/g, '<br>')}"</div>` : ''}
-            
-            <div class="card-highlights-container">
-                <div class="highlight-col">
-                    ${bigThreeHTML}
-                </div>
-            </div>
+            ${extraContent}
             
             <div class="card-actions">
-                <button class="btn btn-rate" onclick="openRatingEditor('${album.id}')">Edit / Rate</button>
+                <button class="btn btn-rate" onclick="openRatingEditor('${album.id}')">Edit / Rate Album</button>
                 <div class="menu-container">
-                    <button class="dots-btn" onclick="toggleMenu('card-${album.id}')">⋮</button>
-                    <div class="dropdown" id="menu-card-${album.id}">
+                    <button class="dots-btn" onclick="toggleMenu('${album.id}')">⋮</button>
+                    <div class="dropdown" id="menu-${album.id}">
                         <button class="text-red" onclick="deleteAlbum('${album.id}')">Delete Album</button>
                     </div>
                 </div>
@@ -875,7 +960,12 @@
         } else if (currentSort === 'year-new') {
             filtered.sort((a, b) => parseInt(b.year || 0) - parseInt(a.year || 0));
         } else if (currentSort === 'artist-az') {
-            filtered.sort((a, b) => a.artist.localeCompare(b.artist));
+            filtered.sort((a, b) => (a.artist || '').localeCompare(b.artist || ''));
+        }
+
+        if (filtered.length === 0) {
+            grid.innerHTML = '<p style="color: var(--text-light);">No albums match this view.</p>';
+            return;
         }
 
         filtered.forEach(album => {
@@ -907,34 +997,50 @@
 
     // --- STATS LOGIC ---
     function openStatsModal() {
-        const rated = albums.filter(a => a.isRated);
-        let perfect = rated.filter(a => a.rating === '5.0').length;
-        let avgScore = rated.length > 0 ? (rated.reduce((sum, a) => sum + parseFloat(a.rating), 0) / rated.length).toFixed(1) : '-.-';
+        const ratedAlbums = albums.filter(a => a.isRated && a.rating !== null);
+        const totalRated = ratedAlbums.length;
+        
+        let perfectSongs = 0;
+        let sumRatings = 0;
+        
+        ratedAlbums.forEach(a => {
+            sumRatings += parseFloat(a.rating || 0);
+            if(a.tracks) {
+                a.tracks.forEach(t => {
+                    if(parseFloat(t.rating) === 5.0) perfectSongs++;
+                });
+            }
+        });
+
+        const globalAvg = totalRated > 0 ? (sumRatings / totalRated).toFixed(1) : '-.-';
         
         document.getElementById('stats-grid-content').innerHTML = `
             <div class="stat-card">
-                <div class="stat-card-title">Total Rated</div>
-                <div class="stat-card-value">${rated.length}</div>
+                <div class="stat-card-title">Albums Rated</div>
+                <div class="stat-card-value">${totalRated}</div>
             </div>
             <div class="stat-card">
-                <div class="stat-card-title">Backlog (Unrated)</div>
-                <div class="stat-card-value">${albums.length - rated.length}</div>
+                <div class="stat-card-title">Global Avg</div>
+                <div class="stat-card-value">${globalAvg}</div>
             </div>
             <div class="stat-card">
-                <div class="stat-card-title">Perfect Scores (5.0)</div>
-                <div class="stat-card-value" style="color: var(--perfect-green);">${perfect}</div>
+                <div class="stat-card-title">Perfect Scores <span style="font-size: 9px; opacity: 0.6; text-transform: lowercase;">(songs)</span></div>
+                <div class="stat-card-value" style="color: var(--perfect-green);">${perfectSongs}</div>
             </div>
             <div class="stat-card">
-                <div class="stat-card-title">Average Rating</div>
-                <div class="stat-card-value">${avgScore}</div>
+                <div class="stat-card-title">Total Library</div>
+                <div class="stat-card-value">${albums.length}</div>
             </div>
         `;
         document.getElementById('statsModal').classList.add('active');
     }
-    
+
     function closeStatsModal() {
         document.getElementById('statsModal').classList.remove('active');
     }
+
+    // Kick off the initial render immediately
+    renderAlbums();
 </script>
 </body>
 </html>
