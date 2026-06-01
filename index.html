@@ -63,18 +63,8 @@
             margin-bottom: 30px;
         }
 
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
+        .header-left { display: flex; align-items: center; gap: 15px; }
+        .header-right { display: flex; align-items: center; gap: 10px; }
         .site-header h1 { font-weight: 700; font-size: 26px; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;}
 
         /* Buttons & Controls */
@@ -97,8 +87,7 @@
 
         /* Controls Section */
         .controls-container {
-            display: flex;
-            justify-content: flex-end; align-items: center; margin-bottom: 30px;
+            display: flex; justify-content: flex-end; align-items: center; margin-bottom: 30px;
             padding-bottom: 15px; border-bottom: 1px dashed var(--border);
         }
         .filters { display: flex; gap: 10px; }
@@ -110,127 +99,93 @@
             gap: 40px;
         }
 
-        /* --- PITCHFORK LAYOUT --- */
-        .pf-layout {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 30px;
+        /* --- RE-LISTEN TOGGLES --- */
+        .card-top-bar {
+            display: flex; justify-content: flex-end; margin-bottom: 10px;
         }
+        .relisten-switch {
+            background: var(--surface); border: 1px solid var(--border); border-radius: 20px;
+            display: flex; overflow: hidden; font-size: 10px; font-weight: 600; text-transform: uppercase;
+        }
+        .relisten-btn {
+            padding: 4px 10px; cursor: pointer; background: transparent; border: none;
+            color: var(--text-light); transition: 0.2s; font-family: inherit; font-size: inherit; font-weight: inherit;
+        }
+        .relisten-btn.active { background: var(--text); color: var(--bg); }
+        
+        .editor-mode-selector { display: flex; justify-content: center; margin-bottom: 25px; }
+        .editor-mode-selector .relisten-switch { font-size: 11px; }
+        .editor-mode-selector .relisten-btn { padding: 6px 15px; }
+
+        /* --- PITCHFORK LAYOUT --- */
+        .pf-layout { display: flex; flex-direction: column; align-items: center; margin-bottom: 30px; }
         .pf-label {
-            font-size: 10px;
-            font-weight: 600; letter-spacing: 2px;
+            font-size: 10px; font-weight: 600; letter-spacing: 2px;
             text-transform: uppercase; color: var(--text-light); margin-bottom: 12px;
         }
         .pf-title {
-            font-family: Georgia, serif;
-            font-style: italic; font-weight: 700;
+            font-family: Georgia, serif; font-style: italic; font-weight: 700;
             font-size: 36px; margin: 0 0 10px 0; text-align: center; color: var(--text); line-height: 1.1;
         }
         .pf-artist {
-            font-size: 20px;
-            font-weight: 500; text-decoration: underline;
+            font-size: 20px; font-weight: 500; text-decoration: underline;
             margin: 0 0 8px 0; text-align: center; color: var(--text);
         }
-        .pf-year {
-            font-size: 14px;
-            color: var(--text-light); margin: 0 0 20px 0; text-align: center;
-        }
+        .pf-year { font-size: 14px; color: var(--text-light); margin: 0 0 20px 0; text-align: center; }
         
-        .pf-showcase {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 25px; 
-        }
+        .pf-showcase { display: flex; align-items: center; justify-content: center; gap: 25px; }
         .pf-cover {
-            width: 170px;
-            height: 170px; object-fit: cover;
+            width: 170px; height: 170px; object-fit: cover;
             border: 1px solid var(--border); background: var(--surface);
         }
         .pf-badge {
-            width: 95px;
-            height: 95px; border-radius: 50%;
+            width: 95px; height: 95px; border-radius: 50%;
             border: 5px solid var(--text); display: flex; align-items: center;
-            justify-content: center; font-size: 34px; font-weight: 700; color: var(--text);
-            background: var(--card-bg);
+            justify-content: center; font-size: 34px; font-weight: 700; color: var(--text); background: var(--card-bg);
         }
         .pf-badge.perfect { border-color: var(--perfect-green); color: var(--perfect-green); }
         .pf-badge.unrated { border-color: var(--border); color: var(--text-light); font-size: 24px;}
 
         /* Album Card */
         .card {
-            border: 1px solid var(--border);
-            padding: 30px;
-            background: var(--card-bg);
-            display: flex; flex-direction: column;
+            border: 1px solid var(--border); padding: 30px;
+            background: var(--card-bg); display: flex; flex-direction: column;
             transition: background-color 0.3s, border-color 0.3s;
-            height: 100%; box-sizing: border-box;
+            height: 100%; box-sizing: border-box; position: relative;
         }
-        
         .card-content { flex-grow: 1; }
 
         .section-label {
-            font-size: 11px;
-            text-transform: uppercase; letter-spacing: 1px;
+            font-size: 11px; text-transform: uppercase; letter-spacing: 1px;
             color: var(--text-light); border-bottom: 1px solid var(--border);
             padding-bottom: 4px; margin: 20px 0 10px 0; font-weight: 600;
         }
 
         .card-review { font-size: 15px; line-height: 1.5; font-style: italic; margin-bottom: 20px; color: var(--text); }
         
-/* Flexbox for Big Three & Favs */
+        /* Flexbox for Big Three & Favs */
         .card-highlights-container {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 20px;
-            align-items: flex-start; /* This stops the boxes from stretching to match heights */
+            display: flex; gap: 20px; margin-bottom: 20px; align-items: flex-start;
         }
-        .highlight-col {
-            flex: 1;
-        }
+        .highlight-col { flex: 1; }
         .card-favs { 
-            background: var(--surface); 
-            padding: 15px; 
-            border-left: 3px solid var(--text); 
-            font-size: 14px;
-            box-sizing: border-box;
-            height: auto; /* Ensures it only takes up as much space as the text needs */
+            background: var(--surface); padding: 15px; 
+            border-left: 3px solid var(--text); font-size: 14px; box-sizing: border-box; height: auto;
         }
         .card-favs ul { margin: 0; padding-left: 20px; color: var(--text); }
         
-        /* Specific styling for Big Three list (no bullets, uses crowns) */
+        /* BIG THREE SYMMETRY FIX */
         .big-three-list {
-            list-style-type: none !important;
-            padding-left: 5px !important;
+            list-style-type: none !important; padding-left: 0 !important; margin: 0;
         }
         .big-three-list li {
-            margin-bottom: 6px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            margin-bottom: 8px; display: flex; justify-content: flex-start; align-items: center; gap: 10px;
         }
-        .crown-icon {
-            font-size: 14px;
-            opacity: 0.7;
-            color: var(--text);
-        }
-        /* Specific styling for Big Three list (no bullets, uses crowns) */
-        .big-three-list {
-            list-style-type: none !important;
-            padding-left: 5px !important;
-        }
-        .big-three-list li {
-            margin-bottom: 6px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+        .crown-icon { font-size: 14px; opacity: 0.8; color: var(--text); flex-shrink: 0; }
 
         /* Card Actions & Three Dots Menu */
         .card-actions {
-            display: flex;
-            justify-content: space-between; align-items: center;
+            display: flex; justify-content: space-between; align-items: center;
             margin-top: auto; padding-top: 20px; border-top: 1px solid var(--border);
         }
         .btn-rate { flex-grow: 1; margin-right: 10px; background-color: var(--text); color: var(--bg); }
@@ -240,68 +195,54 @@
         .settings-dropdown { position: relative; }
         
         .dots-btn {
-            background: none;
-            border: none; font-size: 22px; cursor: pointer;
+            background: none; border: none; font-size: 22px; cursor: pointer;
             padding: 5px 10px; color: var(--text); transition: 0.2s;
         }
         .dots-btn:hover { background: var(--surface); border-radius: 4px; }
         
         .dropdown {
-            display: none;
-            position: absolute; right: 0; bottom: 100%;
+            display: none; position: absolute; right: 0; bottom: 100%;
             background: var(--card-bg); border: 1px solid var(--border);
             box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-radius: 4px;
             z-index: 10; min-width: 140px; overflow: hidden; margin-bottom: 5px;
         }
         .settings-dropdown .dropdown { bottom: auto; top: 100%; margin-top: 5px; margin-bottom: 0; left: 0; right: auto; }
-        
         .dropdown.active { display: block; }
         .dropdown button, .dropdown label.import-label {
-            display: block;
-            width: 100%; text-align: left; padding: 10px 15px;
+            display: block; width: 100%; text-align: left; padding: 10px 15px;
             background: none; border: none; font-size: 13px; cursor: pointer;
-            font-family: inherit; color: var(--text);
-            box-sizing: border-box;
+            font-family: inherit; color: var(--text); box-sizing: border-box;
         }
         .dropdown button:hover, .dropdown label.import-label:hover { background: var(--surface); }
         .text-red { color: #d93025 !important; }
 
         /* --- MODALS (Info & Stats) --- */
         .modal-overlay {
-            display: none;
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--modal-overlay); z-index: 100;
             align-items: center; justify-content: center; backdrop-filter: blur(4px);
         }
         .modal-overlay.active { display: flex; }
         
         .modal-box {
-            background: var(--card-bg);
-            border: 1px solid var(--border); padding: 30px;
+            background: var(--card-bg); border: 1px solid var(--border); padding: 30px;
             border-radius: 8px; width: 100%; max-width: 450px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-            max-height: 90vh; overflow-y: auto;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1); max-height: 90vh; overflow-y: auto;
         }
         .modal-box h2 { margin: 0 0 20px 0; font-size: 20px; color: var(--text); }
         
         /* Stats Specific UI */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;
-        }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
         .stat-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
+            background: var(--surface); border: 1px solid var(--border);
             padding: 20px 15px; border-radius: 6px; text-align: center;
         }
         .stat-card-title {
-            font-size: 10px;
-            text-transform: uppercase; letter-spacing: 1px;
+            font-size: 10px; text-transform: uppercase; letter-spacing: 1px;
             color: var(--text-light); margin-bottom: 8px; font-weight: 600;
         }
         .stat-card-value {
-            font-size: 26px;
-            font-family: Georgia, serif; font-weight: 700;
+            font-size: 26px; font-family: Georgia, serif; font-weight: 700;
             color: var(--text); line-height: 1.1;
         }
 
@@ -309,10 +250,8 @@
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 5px; font-size: 11px; text-transform: uppercase; font-weight: 600; color: var(--text-light); }
         .form-group input, .form-group textarea, .overall-review-area textarea {
-            width: 100%;
-            padding: 10px; border: 1px solid var(--border); border-radius: 4px; 
-            font-family: inherit; font-size: 14px; box-sizing: border-box;
-            background-color: var(--bg); color: var(--text);
+            width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 4px; 
+            font-family: inherit; font-size: 14px; box-sizing: border-box; background-color: var(--bg); color: var(--text);
         }
         .form-group input:focus, .overall-review-area textarea:focus { outline: none; border-color: var(--accent); }
         .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px; }
@@ -328,7 +267,7 @@
 
         /* --- FULL SCREEN RATING EDITOR --- */
         .editor-container { max-width: 700px; margin: 0 auto; padding: 40px 20px; }
-        .editor-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+        .editor-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
         
         .overall-review-area { margin-bottom: 40px; }
         .overall-review-area textarea { min-height: 120px; padding: 15px; resize: vertical; }
@@ -338,14 +277,12 @@
         
         .track-wrapper { position: relative; margin-top: 15px; }
         .note-badge {
-            position: absolute; top: -8px; left: 30px;
-            background: var(--text); color: var(--bg);
-            font-size: 9px; padding: 2px 6px; border-radius: 4px;
-            text-transform: uppercase; font-weight: 700; pointer-events: none; z-index: 5; letter-spacing: 0.5px;
+            position: absolute; top: -8px; left: 30px; background: var(--text); color: var(--bg);
+            font-size: 9px; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; font-weight: 700;
+            pointer-events: none; z-index: 5; letter-spacing: 0.5px;
         }
 
         .track-row { display: flex; align-items: center; gap: 15px; padding: 12px 0; border-bottom: 1px solid var(--surface); }
-        
         .track-num { width: 20px; text-align: right; font-weight: 600; color: var(--text-light); font-size: 15px; }
         
         .track-name-input {
@@ -356,8 +293,7 @@
         
         .track-rating-input {
             width: 45px; padding: 5px; border: 1px solid var(--border); border-radius: 4px;
-            background: var(--surface); color: var(--text); text-align: center; font-size: 14px;
-            font-family: inherit; font-weight: 600; outline: none;
+            background: var(--surface); color: var(--text); text-align: center; font-size: 14px; font-family: inherit; font-weight: 600; outline: none;
         }
         .track-rating-input:focus { border-color: var(--accent); background: var(--bg);}
         input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
@@ -372,7 +308,6 @@
         .track-note-wrapper.active { display: block; }
         .track-note-input { width: 100%; padding: 8px; border: none; border-left: 2px solid var(--border); background: var(--surface); color: var(--text); font-family: inherit; font-size: 13px; box-sizing: border-box; outline: none;}
         .track-note-input:focus { border-left-color: var(--text); }
-
     </style>
 </head>
 <body>
@@ -425,10 +360,7 @@
 <div class="modal-overlay" id="statsModal">
     <div class="modal-box" style="max-width: 500px;">
         <h2 style="text-align: center; font-family: Georgia, serif; font-style: italic; margin-bottom: 25px;">Library Analytics</h2>
-        
-        <div class="stats-grid" id="stats-grid-content">
-            </div>
-
+        <div class="stats-grid" id="stats-grid-content"></div>
         <div class="modal-actions" style="justify-content: center; margin-top: 20px;">
             <button class="btn btn-outline" style="width: 100%;" onclick="closeStatsModal()">Close</button>
         </div>
@@ -467,15 +399,23 @@
         <div class="modal-actions">
             <button class="btn btn-outline" onclick="closeBasicModal()">Cancel</button>
             <button class="btn" onclick="saveBasicInfo()">Save Album</button>
-         </div>
+        </div>
     </div>
 </div>
 
 <div id="rating-view">
     <div class="editor-container">
+        
         <div class="editor-nav">
             <button class="btn btn-outline" onclick="closeRatingEditor()">← Back</button>
             <button class="btn" onclick="saveRatings()">Save Ratings</button>
+        </div>
+
+        <div class="editor-mode-selector">
+            <div class="relisten-switch">
+                <button class="relisten-btn active" id="editor-mode-original" onclick="switchEditorMode('original')">Original Rating</button>
+                <button class="relisten-btn" id="editor-mode-relisten" onclick="switchEditorMode('relisten')">Re-Listen Rating</button>
+            </div>
         </div>
 
         <div class="pf-layout">
@@ -489,7 +429,7 @@
             </div>
         </div>
 
-         <div class="overall-review-area">
+        <div class="overall-review-area">
             <div class="section-label" style="border:none; margin-bottom:5px;">Overall Review</div>
             <textarea id="r-review" placeholder="Write your thoughts on the entire project..."></textarea>
         </div>
@@ -500,627 +440,501 @@
                 <button class="btn btn-outline" style="padding: 6px 12px; font-size: 12px;" onclick="addTrack()">+ Add Track</button>
             </div>
             
-            <div id="editor-tracks-container">
-            </div>
+            <div id="editor-tracks-container"></div>
         </div>
     </div>
 </div>
 
 <script>
-    // --- THEME LOGIC ---
-    const savedTheme = localStorage.getItem('myAlbumTheme') || 'light';
-    if (savedTheme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
-
-    function toggleTheme() {
-        const currentTheme = document.documentElement.getAttribute('data-theme');
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        document.documentElement.setAttribute('data-theme', newTheme);
-        localStorage.setItem('myAlbumTheme', newTheme);
-    }
-
-    // --- DATABASE ---
-    let albums = [];
-    try {
-        let savedData = localStorage.getItem('myAlbumRaterData');
-        if (savedData) {
-            albums = JSON.parse(savedData);
-            if (!Array.isArray(albums)) albums = [];
-        }
-    } catch (e) {
-        console.error("Safe load failed:", e);
-        albums = [];
-    }
-
-    let editingId = null; 
+    let albums = JSON.parse(localStorage.getItem('myAlbumRater_data')) || [];
     let currentRatingId = null;
     let tempTracks = [];
-    let pendingTracklist = null; // Holds tracks fetched from API before saving
+    let tempReListenTracks = [];
+    let tempReview = "";
+    let tempReListenReview = "";
+    let currentEditorMode = 'original'; // 'original' or 'relisten'
 
-    // Sort & Filter States
-    let currentSort = 'default';
-    let currentFilter = 'all';
-
-    // --- STATS LOGIC (Modal Overlay) ---
-    function openStatsModal() {
-        const ratedAlbums = albums.filter(a => a.isRated && a.rating !== null);
-        const totalRated = ratedAlbums.length;
-        
-        let sumAlbumRatings = 0;
-        let perfectSongs = 0;
-        let artistStats = {};
-
-        // Calculate Stats
-        albums.forEach(a => {
-            const isAlbumRated = a.isRated && a.rating !== null;
-            const r = parseFloat(a.rating);
-            
-            if (!artistStats[a.artist]) {
-                artistStats[a.artist] = { albumCount: 0, albumSum: 0, trackCount: 0, trackSum: 0, perfects: 0 };
-            }
-
-            if (isAlbumRated && !isNaN(r)) {
-                sumAlbumRatings += r;
-                artistStats[a.artist].albumCount++;
-                artistStats[a.artist].albumSum += r;
-                if (r === 5.0) artistStats[a.artist].perfects += 2; 
-            }
-
-            if (a.tracks && a.tracks.length > 0) {
-                a.tracks.forEach(t => {
-                    const tr = parseFloat(t.rating);
-                    if (!isNaN(tr)) {
-                        artistStats[a.artist].trackCount++;
-                        artistStats[a.artist].trackSum += tr;
-                        if (tr === 5.0) {
-                            perfectSongs++;
-                            artistStats[a.artist].perfects++;
-                        }
-                    }
-                });
-            }
-        });
-
-        const globalAvg = totalRated > 0 ? (sumAlbumRatings / totalRated).toFixed(1) : '-.-';
-        
-        let topArtist = '-';
-        let maxPowerScore = -1;
-
-        for (let artist in artistStats) {
-            let stats = artistStats[artist];
-            let avgAlbum = stats.albumCount > 0 ? (stats.albumSum / stats.albumCount) : 0;
-            let avgTrack = stats.trackCount > 0 ? (stats.trackSum / stats.trackCount) : 0;
-            
-            let powerScore = (stats.perfects * 2) + (avgAlbum * 3) + (avgTrack * 1);
-            if (powerScore > maxPowerScore && (stats.albumCount > 0 || stats.trackCount > 0)) {
-                maxPowerScore = powerScore;
-                topArtist = artist;
-            }
+    // --- INITIALIZATION ---
+    document.addEventListener('DOMContentLoaded', () => {
+        if (localStorage.getItem('myAlbumRater_theme') === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
         }
+        renderAlbums();
+    });
 
-        document.getElementById('stats-grid-content').innerHTML = `
-            <div class="stat-card">
-                <div class="stat-card-title">Albums Rated</div>
-                <div class="stat-card-value">${totalRated}</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-card-title">Global Avg</div>
-                <div class="stat-card-value">${globalAvg}</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-card-title">Perfect Scores <span style="font-size: 9px; opacity: 0.6; text-transform: lowercase;">(songs)</span></div>
-                <div class="stat-card-value" style="color: var(--perfect-green);">${perfectSongs}</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-card-title">Top Artist</div>
-                <div class="stat-card-value" style="font-size: 20px; font-family: 'Jost', sans-serif;">${topArtist}</div>
-            </div>
-        `;
-        document.getElementById('statsModal').classList.add('active');
+    function saveToStorage() {
+        localStorage.setItem('myAlbumRater_data', JSON.stringify(albums));
     }
 
-    function closeStatsModal() {
-        document.getElementById('statsModal').classList.remove('active');
+    // --- THEME & MENUS ---
+    function toggleTheme() {
+        const root = document.documentElement;
+        const newTheme = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        root.setAttribute('data-theme', newTheme);
+        localStorage.setItem('myAlbumRater_theme', newTheme);
     }
 
-    // --- SORTING & FILTERING ---
-    function handleSort(val) {
-        currentSort = val;
-        renderGrid();
+    function toggleMenu(menuId) {
+        const menu = document.getElementById(`menu-${menuId}`);
+        menu.classList.toggle('active');
     }
 
-    function handleFilter(val) {
-        currentFilter = val;
-        renderGrid();
-    }
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.settings-dropdown')) {
+            document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('active'));
+        }
+    });
 
-    // --- IMPORT / EXPORT LOGIC ---
+    // --- DATA BACKUPS ---
     function exportData() {
-        const dataStr = JSON.stringify(albums, null, 2);
-        const blob = new Blob([dataStr], { type: "application/json" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = "my_album_rater_backup.json";
-        a.click();
-        URL.revokeObjectURL(url);
-        document.getElementById('menu-settings').classList.remove('active');
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(albums));
+        const anchor = document.createElement('a');
+        anchor.setAttribute("href", dataStr);
+        anchor.setAttribute("download", "my_album_rater_backup.json");
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
     }
 
     function importData(event) {
         const file = event.target.files[0];
         if (!file) return;
-        
         const reader = new FileReader();
         reader.onload = function(e) {
             try {
-                const importedData = JSON.parse(e.target.result);
-                if (Array.isArray(importedData)) {
-                    albums = importedData;
+                const imported = JSON.parse(e.target.result);
+                if (Array.isArray(imported)) {
+                    albums = imported;
                     saveToStorage();
-                    renderGrid();
-                    alert("Backup imported successfully!");
-                } else {
-                    alert("Invalid backup file format.");
+                    renderAlbums();
+                    alert('Backup imported successfully!');
                 }
-            } catch(err) {
-                alert("Error reading file. Make sure it's a valid JSON backup.");
+            } catch (err) {
+                alert('Invalid backup file.');
             }
         };
         reader.readAsText(file);
-        document.getElementById('menu-settings').classList.remove('active');
     }
 
-    // --- RENDER MAIN GRID ---
-    function renderGrid() {
-        const grid = document.getElementById('albumGrid');
-        grid.innerHTML = '';
-
-        // Apply Filters
-        let displayAlbums = [...albums];
-        if (currentFilter === 'rated') displayAlbums = displayAlbums.filter(a => a.isRated);
-        if (currentFilter === 'unrated') displayAlbums = displayAlbums.filter(a => !a.isRated);
-
-        // Apply Sorting
-        if (currentSort === 'score-high') {
-            displayAlbums.sort((a,b) => parseFloat(b.rating || 0) - parseFloat(a.rating || 0));
-        } else if (currentSort === 'score-low') {
-            displayAlbums.sort((a,b) => parseFloat(a.rating || 6) - parseFloat(b.rating || 6));
-        } else if (currentSort === 'year-new') {
-            displayAlbums.sort((a,b) => parseInt(b.year || 0) - parseInt(a.year || 0));
-        } else if (currentSort === 'artist-az') {
-            displayAlbums.sort((a,b) => (a.artist || '').localeCompare(b.artist || ''));
-        }
-
-        if (displayAlbums.length === 0) {
-            grid.innerHTML = '<p style="color: var(--text-light);">No albums match this view.</p>';
-            return;
-        }
-
-        displayAlbums.forEach(album => {
-            const card = document.createElement('div');
-            card.className = 'card';
-            
-            let ratingDisplay = '-.-';
-            let badgeClass = 'unrated';
-            let ratingStr = album.rating ? parseFloat(album.rating).toFixed(1) : null;
-
-            if (ratingStr && !isNaN(ratingStr)) {
-                ratingDisplay = ratingStr;
-                badgeClass = ratingStr === '5.0' ? 'perfect' : '';
-            }
-
-            const coverImage = album.cover || 'https://via.placeholder.com/170?text=No+Cover';
-            let extraContent = '';
-            
-            if (album.isRated) {
-                if (album.review) {
-                    extraContent += `<div class="section-label">Review</div><div class="card-review">"${album.review}"</div>`;
-                }
-
-                let favsHtml = '';
-                let hasFavs = false;
-                let bigThreeHtml = '';
-                let hasBigThree = false;
-
-                if (album.tracks && album.tracks.length > 0) {
-                    // Extract Favorites
-                    album.tracks.forEach((t) => {
-                        if (t && t.isFav) {
-                            hasFavs = true;
-                            favsHtml += `<li>${t.name || 'Unknown Track'}</li>`;
-                        }
-                    });
-
-                    // Extract Big Three
-                    let ratedTracks = album.tracks.filter(t => t.rating !== null && t.rating !== '' && !isNaN(parseFloat(t.rating)));
-                    ratedTracks.sort((a, b) => parseFloat(b.rating) - parseFloat(a.rating));
-                    let top3 = ratedTracks.slice(0, 3);
-                    
-                    if (top3.length > 0) {
-                        hasBigThree = true;
-                        top3.forEach(t => {
-                            // Notice we removed the number average here and added the clean crown icon
-                            bigThreeHtml += `<li><span class="crown-icon">♛</span> <span>${t.name}</span></li>`;
-                        });
-                    }
-                }
-
-                // Inject Flex Layout for side-by-side Big Three & Favorites
-                if (hasFavs || hasBigThree) {
-                    let flexHtml = `<div class="card-highlights-container">`;
-                    
-                    if (hasBigThree) {
-                        flexHtml += `
-                            <div class="highlight-col">
-                                <div class="section-label" style="margin-top: 0;">Big Three <span style="text-transform: none; font-size: 9px; opacity: 0.6; font-weight: normal;">(Highest Rated)</span></div>
-                                <div class="card-favs">
-                                    <ul class="big-three-list">${bigThreeHtml}</ul>
-                                </div>
-                            </div>`;
-                    }
-                    if (hasFavs) {
-                        flexHtml += `
-                            <div class="highlight-col">
-                                <div class="section-label" style="margin-top: 0;">Favorite Tracks</div>
-                                <div class="card-favs">
-                                    <ul>${favsHtml}</ul>
-                                </div>
-                            </div>`;
-                    }
-                    flexHtml += `</div>`;
-                    extraContent += flexHtml;
-                }
-            }
-
-            card.innerHTML = `
-                <div class="card-content">
-                    <div class="pf-layout">
-                        <div class="pf-label">Albums</div>
-                        <div class="pf-title">${album.title}</div>
-                        <div class="pf-artist">${album.artist}</div>
-                        <div class="pf-year">${album.year}</div>
-                        <div class="pf-showcase">
-                            <img src="${coverImage}" class="pf-cover" alt="Cover">
-                            <div class="pf-badge ${badgeClass}">${ratingDisplay}</div>
-                        </div>
-                    </div>
-                    ${extraContent}
-                </div>
-
-                <div class="card-actions">
-                    <button class="btn btn-rate" onclick="openRatingEditor('${album.id}')">Rate Album</button>
-                    <div class="menu-container">
-                        <button class="dots-btn" onclick="toggleMenu('${album.id}')">⋮</button>
-                        <div class="dropdown" id="menu-${album.id}">
-                            <button onclick="openBasicModal('${album.id}')">Edit Info</button>
-                            <button class="text-red" onclick="deleteAlbum('${album.id}')">Delete Album</button>
-                        </div>
-                    </div>
-                 </div>
-            `;
-            grid.appendChild(card);
-        });
-    }
-
-    function toggleMenu(id) {
-        document.querySelectorAll('.dropdown').forEach(d => {
-            if (d.id !== `menu-${id}`) d.classList.remove('active');
-        });
-        document.getElementById(`menu-${id}`).classList.toggle('active');
-    }
-    
-    document.addEventListener('click', function(e) {
-        if (!e.target.closest('.menu-container') && !e.target.closest('.settings-dropdown')) {
-            document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('active'));
-        }
-    });
-
-    // --- API INTEGRATION (MusicBrainz) ---
-    async function searchAlbumAPI() {
-        const query = document.getElementById('api-search-input').value;
-        if(!query) return;
-        const resultsDiv = document.getElementById('api-results');
-        resultsDiv.innerHTML = '<span style="font-size:12px; color:var(--text-light);">Searching MusicBrainz Database...</span>';
-
-        try {
-            const res = await fetch(`https://musicbrainz.org/ws/2/release?query=${encodeURIComponent(query)}&limit=5&fmt=json`);
-            const data = await res.json();
-            
-            if(!data.releases || data.releases.length === 0) {
-                resultsDiv.innerHTML = '<span style="font-size:12px; color:var(--text-light);">No results found. Try typing the Album and Artist name.</span>';
-                return;
-            }
-            
-            let html = '';
-            data.releases.forEach(album => {
-                const year = album.date ? album.date.substring(0,4) : 'Unknown';
-                const artist = album['artist-credit'] ? album['artist-credit'][0].name : 'Unknown Artist';
-
-                html += `
-                    <div class="api-result-item" onclick="selectAlbumAPI('${album.id}')">
-                        <div style="font-size:13px; line-height:1.3; padding: 4px;">
-                            <strong>${album.title}</strong><br>
-                            <span style="color:var(--text-light);">${artist} • ${year}</span>
-                        </div>
-                    </div>
-                `;
-            });
-            resultsDiv.innerHTML = html;
-        } catch(e) {
-            resultsDiv.innerHTML = '<span style="font-size:12px; color:#d93025;">Error fetching data. Check your connection.</span>';
-        }
-    }
-
-    async function selectAlbumAPI(releaseId) {
-        document.getElementById('api-results').innerHTML = '<span style="font-size:12px; color:var(--text-light);">Fetching tracklist...</span>';
-
-        try {
-            const res = await fetch(`https://musicbrainz.org/ws/2/release/${releaseId}?inc=recordings&fmt=json`);
-            const data = await res.json();
-            
-            let tracks = [];
-            if (data.media && data.media.length > 0 && data.media[0].tracks) {
-                tracks = data.media[0].tracks;
-            }
-            
-            // We ONLY save the tracklist. We do not touch b-title, b-artist, or b-cover!
-            pendingTracklist = tracks.map(t => ({
-                name: t.title || t.recording.title,
-                rating: '',
-                isFav: false,
-                note: '',
-                showNote: false
-            }));
-            
-            document.getElementById('api-results').innerHTML = `<span style="font-size:12px; color:var(--perfect-green); font-weight: 600;">✓ Successfully queued ${pendingTracklist.length} tracks! (They will appear when you rate the album)</span>`;
-        } catch(e) {
-            document.getElementById('api-results').innerHTML = '<span style="font-size:12px; color:#d93025;">Failed to fetch tracklist.</span>';
-        }
-    }
-
-
-    // --- BASIC INFO LOGIC (Modal) ---
-    function openBasicModal(id = null) {
-        editingId = id;
-        const modal = document.getElementById('basicModal');
-        const title = document.getElementById('modalTitle');
-        
-        // Reset Search UI
+    // --- MODALS (Add Album) ---
+    function openBasicModal() {
+        document.getElementById('modalTitle').innerText = 'Add New Album';
+        document.getElementById('b-title').value = '';
+        document.getElementById('b-artist').value = '';
+        document.getElementById('b-year').value = '';
+        document.getElementById('b-cover').value = '';
         document.getElementById('api-search-input').value = '';
         document.getElementById('api-results').innerHTML = '';
-        pendingTracklist = null;
-        
-        if (id) {
-            const album = albums.find(a => a.id === id);
-            title.innerText = "Edit Album Info";
-            document.getElementById('b-title').value = album.title;
-            document.getElementById('b-artist').value = album.artist;
-            document.getElementById('b-year').value = album.year;
-            document.getElementById('b-cover').value = album.cover;
-        } else {
-            title.innerText = "Add New Album";
-            document.getElementById('b-title').value = '';
-            document.getElementById('b-artist').value = '';
-            document.getElementById('b-year').value = '';
-            document.getElementById('b-cover').value = '';
-        }
-        
-        modal.classList.add('active');
+        document.getElementById('basicModal').classList.add('active');
     }
 
     function closeBasicModal() {
         document.getElementById('basicModal').classList.remove('active');
-        editingId = null;
-        pendingTracklist = null;
+    }
+
+    // --- UPGRADED API SEARCH ---
+    async function searchAlbumAPI() {
+        const query = document.getElementById('api-search-input').value;
+        if (!query) return;
+        const resArea = document.getElementById('api-results');
+        resArea.innerHTML = 'Searching...';
+        
+        try {
+            // Increased limit to 15 to catch popular albums that have many variants
+            const response = await fetch(`https://musicbrainz.org/ws/2/release/?query=${encodeURIComponent(query)}&fmt=json&limit=15`);
+            const data = await response.json();
+            resArea.innerHTML = '';
+            
+            if (data.releases && data.releases.length > 0) {
+                data.releases.forEach(rel => {
+                    let artist = rel['artist-credit'] ? rel['artist-credit'][0].name : 'Unknown';
+                    let year = rel.date ? rel.date.substring(0, 4) : 'Unknown';
+                    let div = document.createElement('div');
+                    div.className = 'api-result-item';
+                    div.innerHTML = `<strong>${rel.title}</strong> - ${artist} (${year})`;
+                    div.onclick = () => {
+                        document.getElementById('b-title').value = rel.title;
+                        document.getElementById('b-artist').value = artist;
+                        document.getElementById('b-year').value = year;
+                        resArea.innerHTML = '';
+                        document.getElementById('api-search-input').value = '';
+                    };
+                    resArea.appendChild(div);
+                });
+            } else {
+                resArea.innerHTML = '<div style="padding: 10px; color: var(--text-light); font-size: 13px;">No results found. Try typing both the artist and album name.</div>';
+            }
+        } catch (e) {
+            resArea.innerHTML = '<div class="text-red" style="padding: 10px; font-size: 13px;">Error communicating with server.</div>';
+        }
     }
 
     function saveBasicInfo() {
-        const title = document.getElementById('b-title').value || 'Unknown Album';
-        const artist = document.getElementById('b-artist').value || 'Unknown Artist';
-        const year = document.getElementById('b-year').value || '';
-        const cover = document.getElementById('b-cover').value || '';
-
-        if (editingId) {
-            let album = albums.find(a => a.id === editingId);
-            album.title = title;
-            album.artist = artist;
-            album.year = year;
-            album.cover = cover;
-            
-            // If they used the API search while editing, prompt them to overwrite tracks
-            if (pendingTracklist && pendingTracklist.length > 0) {
-                if(confirm("You pulled new album data. Do you want to overwrite your existing tracklist with the new one? (This will erase current track ratings)")) {
-                    album.tracks = pendingTracklist;
-                }
-            }
-        } else {
-            albums.push({
-                id: Date.now().toString(),
-                title: title, artist: artist, year: year, cover: cover,
-                isRated: false, review: '', rating: null, 
-                tracks: pendingTracklist || [] // Use fetched tracks if they exist!
-            });
+        const title = document.getElementById('b-title').value.trim();
+        const artist = document.getElementById('b-artist').value.trim();
+        if (!title || !artist) {
+            alert('Title and Artist are required!');
+            return;
         }
 
+        const newAlbum = {
+            id: Date.now().toString(),
+            title: title,
+            artist: artist,
+            year: document.getElementById('b-year').value.trim() || 'Unknown',
+            cover: document.getElementById('b-cover').value.trim() || 'https://via.placeholder.com/300?text=No+Cover',
+            isRated: false,
+            dateAdded: new Date().toISOString()
+        };
+
+        albums.push(newAlbum);
         saveToStorage();
         closeBasicModal();
-        renderGrid();
+        renderAlbums();
     }
 
-    function deleteAlbum(id) {
-        if (confirm("Delete this album? This cannot be undone.")) {
-            albums = albums.filter(a => a.id !== id);
-            saveToStorage();
-            renderGrid();
-        }
-    }
-
-    // --- RATING EDITOR LOGIC ---
+    // --- RATING EDITOR ---
     function openRatingEditor(id) {
         currentRatingId = id;
         const album = albums.find(a => a.id === id);
         
+        // Load original data
+        tempTracks = album.tracks ? JSON.parse(JSON.stringify(album.tracks)) : [];
+        tempReview = album.review || "";
+        
+        // Load relisten data, or create a blank slate using the original track names
+        if (album.reListenTracks) {
+            tempReListenTracks = JSON.parse(JSON.stringify(album.reListenTracks));
+        } else {
+            tempReListenTracks = tempTracks.map(t => ({
+                name: t.name,
+                rating: '',
+                note: '',
+                showNote: false
+            }));
+        }
+        tempReListenReview = album.reListenReview || "";
+        
         document.getElementById('r-title').innerText = album.title;
         document.getElementById('r-artist').innerText = album.artist;
         document.getElementById('r-year').innerText = album.year;
-        document.getElementById('r-cover').src = album.cover || 'https://via.placeholder.com/170?text=No+Cover';
-        document.getElementById('r-review').value = album.review || '';
+        document.getElementById('r-cover').src = album.cover;
         
-        tempTracks = album.tracks ? JSON.parse(JSON.stringify(album.tracks)) : [];
+        // Always open in 'original' mode first
+        currentEditorMode = 'original';
+        document.getElementById('editor-mode-original').classList.add('active');
+        document.getElementById('editor-mode-relisten').classList.remove('active');
+        document.getElementById('r-review').value = tempReview;
         
         document.getElementById('main-view').style.display = 'none';
         document.getElementById('rating-view').style.display = 'block';
         window.scrollTo(0,0);
         
         renderEditorTracks();
+        updateLiveRating();
     }
 
     function closeRatingEditor() {
         document.getElementById('rating-view').style.display = 'none';
         document.getElementById('main-view').style.display = 'block';
         currentRatingId = null;
-        renderGrid();
     }
 
-    // --- TRACKLIST LOGIC ---
-    function renderEditorTracks() {
-        const container = document.getElementById('editor-tracks-container');
-        container.innerHTML = '';
+    function switchEditorMode(mode) {
+        // Save current review text before switching
+        if (currentEditorMode === 'original') {
+            tempReview = document.getElementById('r-review').value;
+        } else {
+            tempReListenReview = document.getElementById('r-review').value;
+        }
 
-        tempTracks.forEach((track, index) => {
-            const rowWrapper = document.createElement('div');
-            rowWrapper.className = 'track-wrapper';
-            
-            const starClass = track.isFav ? 'active' : '';
-            const noteIcon = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>`;
-            const noteAreaStyle = track.showNote ? 'active' : '';
-            
-            const badgeHtml = (track.note && track.note.trim() !== '') ? `<div class="note-badge">Note Added</div>` : '';
+        currentEditorMode = mode;
+        document.getElementById('editor-mode-original').classList.toggle('active', mode === 'original');
+        document.getElementById('editor-mode-relisten').classList.toggle('active', mode === 'relisten');
 
-            rowWrapper.innerHTML = `
-                ${badgeHtml}
-                <div class="track-row">
-                    <div class="track-num">${index + 1}</div>
-                    
-                    <input type="text" class="track-name-input" placeholder="Track Name" value="${track.name || ''}" oninput="updateTrack(${index}, 'name', this.value)">
-                    
-                    <input type="number" class="track-rating-input" placeholder="0.0" step="0.1" min="0" max="5" value="${track.rating || ''}" oninput="updateTrack(${index}, 'rating', this.value)">
-                    
-                    <button class="icon-btn" onclick="toggleFav(${index})" title="Favorite Track">
-                        <span class="star-icon ${starClass}">★</span>
-                    </button>
-                    
-                    <button class="icon-btn" onclick="toggleNote(${index})" title="Add Note">
-                        ${noteIcon}
-                    </button>
-                   
-                    <button class="icon-btn" onclick="removeTrack(${index})" style="color: #d93025; font-size:18px;" title="Remove">×</button>
-                </div>
-                
-                <div class="track-note-wrapper ${noteAreaStyle}">
-                    <input type="text" class="track-note-input" placeholder="Type a note for this track..." value="${track.note || ''}" oninput="updateTrack(${index}, 'note', this.value)">
-                </div>
-            `;
-            container.appendChild(rowWrapper);
-        });
-
+        // Load new review text and tracks
+        document.getElementById('r-review').value = mode === 'original' ? tempReview : tempReListenReview;
+        renderEditorTracks();
         updateLiveRating();
     }
 
+    function getActiveTracks() {
+        return currentEditorMode === 'original' ? tempTracks : tempReListenTracks;
+    }
+
+    function renderEditorTracks() {
+        const container = document.getElementById('editor-tracks-container');
+        container.innerHTML = '';
+        let tracks = getActiveTracks();
+        
+        tracks.forEach((t, index) => {
+            const row = document.createElement('div');
+            row.className = 'track-wrapper';
+            row.innerHTML = `
+                <div class="track-row">
+                    <div class="track-num">${index + 1}.</div>
+                    <input type="text" class="track-name-input" value="${t.name}" onchange="updateTrackName(${index}, this.value)" placeholder="Track title...">
+                    
+                    <button class="icon-btn" onclick="toggleNote(${index})" title="Add Note/Review">💬</button>
+                    
+                    <input type="number" class="track-rating-input" value="${t.rating}" step="0.1" min="0" max="5" oninput="updateTrackRating(${index}, this.value)">
+                    <button class="icon-btn text-red" onclick="removeTrack(${index})" title="Delete Track">✕</button>
+                </div>
+                <div class="track-note-wrapper ${t.showNote || t.note ? 'active' : ''}">
+                    <input type="text" class="track-note-input" value="${t.note || ''}" placeholder="Thoughts on this track..." onchange="updateTrackNote(${index}, this.value)">
+                </div>
+            `;
+            container.appendChild(row);
+        });
+    }
+
     function addTrack() {
-        tempTracks.push({ name: '', rating: '', isFav: false, note: '', showNote: false });
+        let tracks = getActiveTracks();
+        tracks.push({ name: '', rating: '', note: '', showNote: false });
         renderEditorTracks();
     }
-
-    function updateTrack(index, field, value) {
-        if (field === 'rating' && value !== '') {
-            let num = parseFloat(value);
-            if (num > 5) {
-                value = '5';
-                document.querySelectorAll('.track-rating-input')[index].value = '5';
-            } else if (num < 0) {
-                value = '0';
-                document.querySelectorAll('.track-rating-input')[index].value = '0';
-            }
-        }
-
-        tempTracks[index][field] = value;
-        
-        if (field === 'note') {
-             const wrappers = document.querySelectorAll('.track-wrapper');
-            if (wrappers[index]) {
-                let badge = wrappers[index].querySelector('.note-badge');
-                if (value.trim() !== '' && !badge) {
-                    badge = document.createElement('div');
-                    badge.className = 'note-badge';
-                    badge.innerText = 'Note Added';
-                    wrappers[index].insertBefore(badge, wrappers[index].firstChild);
-                } else if (value.trim() === '' && badge) {
-                    badge.remove();
-                }
-            }
-        }
-        
-        if (field === 'rating') updateLiveRating();
-    }
-
-    function toggleFav(index) {
-        tempTracks[index].isFav = !tempTracks[index].isFav;
-        renderEditorTracks();
-    }
-
-    function toggleNote(index) {
-        tempTracks[index].showNote = !tempTracks[index].showNote;
-        renderEditorTracks();
-    }
-
+    
     function removeTrack(index) {
-        tempTracks.splice(index, 1);
+        let tracks = getActiveTracks();
+        tracks.splice(index, 1);
         renderEditorTracks();
+        updateLiveRating();
+    }
+
+    function updateTrackName(index, val) { getActiveTracks()[index].name = val; }
+    function updateTrackNote(index, val) { getActiveTracks()[index].note = val; }
+    function toggleNote(index) { 
+        let tracks = getActiveTracks();
+        tracks[index].showNote = !tracks[index].showNote; 
+        renderEditorTracks(); 
+    }
+
+    function updateTrackRating(index, val) {
+        getActiveTracks()[index].rating = val;
+        updateLiveRating();
+    }
+
+    function calculateAverage(tracks) {
+        let total = 0; let count = 0;
+        tracks.forEach(t => {
+            let val = parseFloat(t.rating);
+            if (!isNaN(val) && t.rating !== "") { total += val; count++; }
+        });
+        if (count === 0) return null;
+        return (total / count).toFixed(1);
     }
 
     function updateLiveRating() {
         const badge = document.getElementById('r-badge');
-        let total = 0;
-        let count = 0;
+        let avg = calculateAverage(getActiveTracks());
         
-        tempTracks.forEach(t => {
-            let val = parseFloat(t.rating);
-            if (!isNaN(val)) {
-                total += val;
-                count++;
-            }
-        });
-        if (count === 0) {
+        if (!avg) {
             badge.innerText = '-.-';
             badge.className = 'pf-badge unrated';
-            return null;
+        } else {
+            badge.innerText = avg;
+            badge.className = avg === '5.0' ? 'pf-badge perfect' : 'pf-badge';
         }
-
-        let avg = (total / count).toFixed(1);
-        badge.innerText = avg;
-        badge.className = avg === '5.0' ? 'pf-badge perfect' : 'pf-badge';
-        return avg;
     }
 
     function saveRatings() {
         const album = albums.find(a => a.id === currentRatingId);
-        album.review = document.getElementById('r-review').value;
-        album.tracks = tempTracks;
-        album.rating = updateLiveRating();
-        album.isRated = true;
+        
+        if (currentEditorMode === 'original') {
+            tempReview = document.getElementById('r-review').value;
+        } else {
+            tempReListenReview = document.getElementById('r-review').value;
+        }
 
+        // Save Original Data
+        album.review = tempReview;
+        album.tracks = tempTracks;
+        album.rating = calculateAverage(tempTracks);
+        
+        // Save Re-Listen Data ONLY if they actually inputted ratings in that mode
+        let hasReListen = tempReListenTracks.some(t => t.rating !== '');
+        if (hasReListen) {
+            album.reListenReview = tempReListenReview;
+            album.reListenTracks = tempReListenTracks;
+            album.reListenRating = calculateAverage(tempReListenTracks);
+        } else {
+            delete album.reListenReview;
+            delete album.reListenTracks;
+            delete album.reListenRating;
+        }
+
+        album.isRated = true;
         saveToStorage();
         closeRatingEditor();
+        renderAlbums();
     }
 
-    // --- UTILS ---
-    function saveToStorage() {
-        localStorage.setItem('myAlbumRaterData', JSON.stringify(albums));
+    // --- HOMEPAGE RENDERING & CARD TOGGLES ---
+    function deleteAlbum(id) {
+        if(confirm("Are you sure you want to delete this album?")) {
+            albums = albums.filter(a => a.id !== id);
+            saveToStorage();
+            renderAlbums();
+        }
     }
 
-    // Init
-    renderGrid();
+    function getBigThree(tracks) {
+        if(!tracks || tracks.length === 0) return [];
+        let valid = tracks.filter(t => t.rating !== "" && !isNaN(parseFloat(t.rating)));
+        valid.sort((a, b) => parseFloat(b.rating) - parseFloat(a.rating));
+        return valid.slice(0, 3);
+    }
+
+    function getCardContentHTML(album, mode) {
+        let isRelisten = mode === 'relisten';
+        let rating = isRelisten ? album.reListenRating : album.rating;
+        let review = isRelisten ? album.reListenReview : album.review;
+        let tracks = isRelisten ? album.reListenTracks : album.tracks;
+        
+        let badgeClass = rating === '5.0' ? 'pf-badge perfect' : 'pf-badge';
+        if (!rating) badgeClass = 'pf-badge unrated';
+        
+        let bigThree = getBigThree(tracks);
+        let bigThreeHTML = '<div class="section-label">The Big Three</div>';
+        
+        if(bigThree.length > 0) {
+            bigThreeHTML += '<ul class="big-three-list">';
+            bigThree.forEach((t, i) => {
+                let crown = i === 0 ? '👑' : i === 1 ? '🥈' : '🥉';
+                bigThreeHTML += `<li><span class="crown-icon">${crown}</span> <strong>${parseFloat(t.rating).toFixed(1)}</strong> - ${t.name}</li>`;
+            });
+            bigThreeHTML += '</ul>';
+        } else {
+            bigThreeHTML += '<div style="font-size:13px; color:var(--text-light);">No ratings yet.</div>';
+        }
+
+        return `
+            <div class="pf-layout">
+                <div class="pf-label">ALBUM</div>
+                <div class="pf-title">${album.title}</div>
+                <div class="pf-artist">${album.artist}</div>
+                <div class="pf-year">${album.year}</div>
+                <div class="pf-showcase">
+                    <img src="${album.cover}" class="pf-cover" onerror="this.src='https://via.placeholder.com/300?text=No+Cover'">
+                    <div class="${badgeClass}">${rating || '-.-'}</div>
+                </div>
+            </div>
+            
+            ${review ? `<div class="card-review">"${review.replace(/\n/g, '<br>')}"</div>` : ''}
+            
+            <div class="card-highlights-container">
+                <div class="highlight-col">
+                    ${bigThreeHTML}
+                </div>
+            </div>
+            
+            <div class="card-actions">
+                <button class="btn btn-rate" onclick="openRatingEditor('${album.id}')">Edit / Rate</button>
+                <div class="menu-container">
+                    <button class="dots-btn" onclick="toggleMenu('card-${album.id}')">⋮</button>
+                    <div class="dropdown" id="menu-card-${album.id}">
+                        <button class="text-red" onclick="deleteAlbum('${album.id}')">Delete Album</button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function flipCard(albumId, mode, btnElement) {
+        const album = albums.find(a => a.id === albumId);
+        const switchContainer = btnElement.parentElement;
+        switchContainer.querySelectorAll('.relisten-btn').forEach(b => b.classList.remove('active'));
+        btnElement.classList.add('active');
+        
+        document.getElementById(`card-body-${albumId}`).innerHTML = getCardContentHTML(album, mode);
+    }
+
+    let currentFilter = 'all';
+    let currentSort = 'default';
+
+    function handleFilter(val) { currentFilter = val; renderAlbums(); }
+    function handleSort(val) { currentSort = val; renderAlbums(); }
+
+    function renderAlbums() {
+        const grid = document.getElementById('albumGrid');
+        grid.innerHTML = '';
+        
+        let filtered = [...albums];
+        
+        if (currentFilter === 'rated') filtered = filtered.filter(a => a.isRated);
+        if (currentFilter === 'unrated') filtered = filtered.filter(a => !a.isRated);
+
+        if (currentSort === 'score-high') {
+            filtered.sort((a, b) => parseFloat(b.rating || 0) - parseFloat(a.rating || 0));
+        } else if (currentSort === 'score-low') {
+            filtered.sort((a, b) => {
+                let ratingA = a.rating ? parseFloat(a.rating) : 999;
+                let ratingB = b.rating ? parseFloat(b.rating) : 999;
+                return ratingA - ratingB;
+            });
+        } else if (currentSort === 'year-new') {
+            filtered.sort((a, b) => parseInt(b.year || 0) - parseInt(a.year || 0));
+        } else if (currentSort === 'artist-az') {
+            filtered.sort((a, b) => a.artist.localeCompare(b.artist));
+        }
+
+        filtered.forEach(album => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.id = `card-wrapper-${album.id}`;
+            
+            // Re-listen toggle inside card header (only if relisten data exists)
+            let topBarHTML = '';
+            if (album.reListenRating) {
+                topBarHTML = `
+                <div class="card-top-bar">
+                    <div class="relisten-switch">
+                        <button class="relisten-btn active" onclick="flipCard('${album.id}', 'original', this)">Original</button>
+                        <button class="relisten-btn" onclick="flipCard('${album.id}', 'relisten', this)">Re-Listen</button>
+                    </div>
+                </div>`;
+            }
+
+            card.innerHTML = `
+                ${topBarHTML}
+                <div class="card-content" id="card-body-${album.id}">
+                    ${getCardContentHTML(album, 'original')}
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    // --- STATS LOGIC ---
+    function openStatsModal() {
+        const rated = albums.filter(a => a.isRated);
+        let perfect = rated.filter(a => a.rating === '5.0').length;
+        let avgScore = rated.length > 0 ? (rated.reduce((sum, a) => sum + parseFloat(a.rating), 0) / rated.length).toFixed(1) : '-.-';
+        
+        document.getElementById('stats-grid-content').innerHTML = `
+            <div class="stat-card">
+                <div class="stat-card-title">Total Rated</div>
+                <div class="stat-card-value">${rated.length}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-title">Backlog (Unrated)</div>
+                <div class="stat-card-value">${albums.length - rated.length}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-title">Perfect Scores (5.0)</div>
+                <div class="stat-card-value" style="color: var(--perfect-green);">${perfect}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-title">Average Rating</div>
+                <div class="stat-card-value">${avgScore}</div>
+            </div>
+        `;
+        document.getElementById('statsModal').classList.add('active');
+    }
+    
+    function closeStatsModal() {
+        document.getElementById('statsModal').classList.remove('active');
+    }
 </script>
 </body>
 </html>
