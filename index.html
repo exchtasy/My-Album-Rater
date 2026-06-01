@@ -6,175 +6,106 @@
     <title>My Album Rater</title>
     <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg: #ffffff; --surface: #f9f9f9; --text: #111111; --text-light: #666666;
-            --border: #e0e0e0; --accent: #111111; --perfect-green: #00ff1a; --card-bg: #ffffff;
-            --modal-overlay: rgba(255, 255, 255, 0.9);
-        }
-        [data-theme="dark"] {
-            --bg: #121212; --surface: #1e1e1e; --text: #ffffff; --text-light: #aaaaaa;
-            --border: #333333; --accent: #ffffff; --card-bg: #181818; --modal-overlay: rgba(18, 18, 18, 0.9);
-        }
-        body { font-family: 'Jost', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 0; transition: background-color 0.3s, color 0.3s; }
+        :root { --bg: #ffffff; --surface: #f9f9f9; --text: #111111; --text-light: #666666; --border: #e0e0e0; --accent: #111111; --perfect-green: #00ff1a; --card-bg: #ffffff; --modal-overlay: rgba(255, 255, 255, 0.9); }
+        [data-theme="dark"] { --bg: #121212; --surface: #1e1e1e; --text: #ffffff; --text-light: #aaaaaa; --border: #333333; --accent: #ffffff; --card-bg: #181818; --modal-overlay: rgba(18, 18, 18, 0.9); }
+        body { font-family: 'Jost', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 0; transition: 0.3s; }
         .container { max-width: 1000px; margin: 0 auto; padding: 40px 20px; }
-        #main-view { display: block; }
-        #rating-view { display: none; background: var(--bg); min-height: 100vh; }
         .site-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--text); padding-bottom: 20px; margin-bottom: 30px; }
-        .header-left, .header-right { display: flex; align-items: center; gap: 10px; }
-        .site-header h1 { font-weight: 700; font-size: 26px; margin: 0; text-transform: uppercase; letter-spacing: 0.5px; }
-        .btn { background-color: var(--accent); color: var(--bg); border: none; padding: 8px 16px; border-radius: 4px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Jost', sans-serif; }
-        .btn:hover { opacity: 0.8; }
+        .header-left, .header-right { display: flex; align-items: center; gap: 15px; }
+        h1 { font-weight: 700; font-size: 26px; margin: 0; text-transform: uppercase; }
+        .btn { background-color: var(--accent); color: var(--bg); border: none; padding: 8px 16px; border-radius: 4px; font-size: 13px; font-weight: 600; cursor: pointer; }
         .btn-outline { background-color: transparent; color: var(--text); border: 1px solid var(--border); }
-        .control-select { padding: 6px 10px; border: 1px solid var(--border); border-radius: 4px; background: var(--surface); color: var(--text); font-size: 12px; cursor: pointer; }
-        .controls-container { display: flex; justify-content: flex-end; margin-bottom: 30px; padding-bottom: 15px; border-bottom: 1px dashed var(--border); gap: 10px; }
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 40px; }
         
-        /* Card Styles */
+        /* Card Layout */
         .card { border: 1px solid var(--border); padding: 30px; background: var(--card-bg); display: flex; flex-direction: column; }
         .pf-layout { display: flex; flex-direction: column; align-items: center; margin-bottom: 20px; }
         .pf-title { font-family: Georgia, serif; font-style: italic; font-weight: 700; font-size: 28px; text-align: center; }
-        .pf-badge { width: 70px; height: 70px; border-radius: 50%; border: 3px solid var(--text); display: flex; align-items: center; justify-content: center; font-weight: 700; margin: 15px auto; }
+        .pf-badge { width: 90px; height: 90px; border-radius: 50%; border: 5px solid var(--text); display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 700; margin: 15px 0; }
         .pf-badge.perfect { border-color: var(--perfect-green); color: var(--perfect-green); }
         
-        .card-big-three { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border); text-align: center; }
-        .big-three-item { font-size: 9px; text-transform: uppercase; color: var(--text-light); }
-        .big-three-value { display: block; font-size: 14px; font-weight: 700; color: var(--text); margin-top: 2px; }
-
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--modal-overlay); z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
-        .modal-overlay.active { display: flex; }
-        .modal-box { background: var(--card-bg); border: 1px solid var(--border); padding: 30px; border-radius: 8px; width: 100%; max-width: 400px; }
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .stat-card { background: var(--surface); padding: 15px; border-radius: 6px; text-align: center; }
+        /* The New Big Three / Favs Split */
+        .card-footer-stats { display: flex; gap: 10px; margin-top: auto; padding-top: 20px; border-top: 1px solid var(--border); }
+        .stat-col { flex: 1; font-size: 11px; }
+        .stat-col-title { font-weight: 700; text-transform: uppercase; margin-bottom: 5px; color: var(--text-light); }
+        .stat-col ul { margin: 0; padding-left: 18px; color: var(--text); }
         
-        .editor-container { max-width: 700px; margin: 0 auto; padding: 40px 20px; }
-        .track-row { display: flex; align-items: center; gap: 15px; padding: 10px 0; border-bottom: 1px solid var(--surface); }
-        .fetch-btn { background: var(--accent); color: var(--bg); border: none; padding: 6px 12px; border-radius: 4px; font-size: 11px; cursor: pointer; margin-bottom: 15px; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--modal-overlay); z-index: 100; align-items: center; justify-content: center; }
+        .modal-overlay.active { display: flex; }
+        .modal-box { background: var(--card-bg); border: 1px solid var(--border); padding: 30px; border-radius: 8px; width: 400px; }
+        
+        .dropdown { display: none; position: absolute; background: var(--card-bg); border: 1px solid var(--border); top: 100%; left: 0; z-index: 10; }
+        .dropdown.active { display: block; }
     </style>
 </head>
 <body>
 
-<div id="main-view">
-    <div class="container">
-        <div class="site-header">
-            <div class="header-left">
-                <h1>My Album Rater</h1>
-                <button class="btn btn-outline" onclick="toggleTheme()">🌓 Theme</button>
+<div id="main-view" class="container">
+    <div class="site-header">
+        <div class="header-left">
+            <h1>My Album Rater</h1>
+            <div style="position:relative">
+                <button class="btn btn-outline" onclick="document.getElementById('set-menu').classList.toggle('active')">⚙️ Settings</button>
+                <div id="set-menu" class="dropdown"><button onclick="localStorage.clear(); location.reload()">Reset Data</button></div>
             </div>
-            <div class="header-right">
-                <button class="btn btn-outline" onclick="openStatsModal()">📊 Stats</button>
-                <button class="btn" onclick="openBasicModal()">+ Add Album</button>
-            </div>
+            <button class="btn btn-outline" onclick="toggleTheme()">🌓 Theme</button>
         </div>
-        <div class="controls-container">
-            <select class="control-select" id="filter-select" onchange="renderGrid()">
-                <option value="all">Show: All</option>
-                <option value="rated">Rated</option>
-            </select>
-            <select class="control-select" id="sort-select" onchange="renderGrid()">
-                <option value="default">Sort: Date</option>
-                <option value="score-high">Highest Rated</option>
-            </select>
+        <div class="header-right">
+            <button class="btn btn-outline" onclick="renderGrid()">📊 Stats</button>
+            <button class="btn" onclick="openBasicModal()">+ Add Album</button>
         </div>
-        <div class="grid" id="albumGrid"></div>
     </div>
-</div>
-
-<div class="modal-overlay" id="statsModal"><div class="modal-box"><h2>Analytics</h2><div class="stats-grid" id="stats-grid-content"></div><button class="btn" style="width:100%; margin-top:20px;" onclick="closeStatsModal()">Close</button></div></div>
-<div class="modal-overlay" id="basicModal"><div class="modal-box"><h2>Album Info</h2><input type="text" id="b-title" placeholder="Title" style="width:100%; margin-bottom:10px;"><input type="text" id="b-artist" placeholder="Artist" style="width:100%; margin-bottom:10px;"><input type="text" id="b-year" placeholder="Year" style="width:100%; margin-bottom:10px;"><button class="btn" onclick="saveBasicInfo()">Save</button></div></div>
-
-<div id="rating-view">
-    <div class="editor-container">
-        <button class="btn btn-outline" onclick="closeRatingEditor()">← Back</button>
-        <button class="fetch-btn" onclick="fetchTracklist(document.getElementById('r-title').innerText, document.getElementById('r-artist').innerText)">⚡ Auto-Fetch Tracklist</button>
-        <div id="r-title" style="font-size:24px; font-weight:bold;"></div>
-        <div id="r-artist"></div>
-        <div id="editor-tracks-container"></div>
-        <button class="btn" onclick="saveRatings()">Save All Changes</button>
-    </div>
+    <div class="grid" id="albumGrid"></div>
 </div>
 
 <script>
     let albums = JSON.parse(localStorage.getItem('myAlbumRaterData') || '[]');
-    let currentRatingId = null;
-    let tempTracks = [];
+
+    function toggleTheme() {
+        const t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', t);
+        localStorage.setItem('theme', t);
+    }
 
     function renderGrid() {
         const grid = document.getElementById('albumGrid');
         grid.innerHTML = '';
         albums.forEach(a => {
-            const favCount = (a.tracks || []).filter(t => t.isFav).length;
+            const sorted = [...(a.tracks || [])].sort((x, y) => (y.rating || 0) - (x.rating || 0));
+            const bigThree = sorted.slice(0, 3).map(t => `<li>${t.name}</li>`).join('');
+            const favs = (a.tracks || []).filter(t => t.isFav).map(t => `<li>${t.name}</li>`).join('');
+
             const card = document.createElement('div');
             card.className = 'card';
             card.innerHTML = `
                 <div class="pf-layout">
                     <div class="pf-title">${a.title}</div>
+                    <div style="font-weight:600">${a.artist}</div>
                     <div class="pf-badge ${a.rating == 5 ? 'perfect' : ''}">${a.rating || '-'}</div>
                 </div>
-                <div class="card-big-three">
-                    <div class="big-three-item">Score<span class="big-three-value">${a.rating || 0}</span></div>
-                    <div class="big-three-item">Reviews<span class="big-three-value">${a.review ? 1 : 0}</span></div>
-                    <div class="big-three-item">Favs<span class="big-three-value">${favCount}</span></div>
+                <div class="card-footer-stats">
+                    <div class="stat-col">
+                        <div class="stat-col-title">Big Three</div>
+                        <ul>${bigThree || '<li>-</li>'}</ul>
+                    </div>
+                    <div class="stat-col">
+                        <div class="stat-col-title">Favorites</div>
+                        <ul>${favs || '<li>-</li>'}</ul>
+                    </div>
                 </div>
-                <button class="btn" style="margin-top:20px;" onclick="openRatingEditor('${a.id}')">Rate/Edit</button>
             `;
             grid.appendChild(card);
         });
     }
 
-    async function fetchTracklist(title, artist) {
-        try {
-            const res = await fetch(`https://musicbrainz.org/ws/2/release/?query=release:${encodeURIComponent(title)}%20AND%20artist:${encodeURIComponent(artist)}&fmt=json&limit=1`);
-            const data = await res.json();
-            const mbid = data.releases[0].id;
-            const trackRes = await fetch(`https://musicbrainz.org/ws/2/release/${mbid}?inc=recordings&fmt=json`);
-            const trackData = await trackRes.json();
-            tempTracks = trackData.media[0].tracks.map(t => ({ name: t.title, rating: 0, isFav: false }));
-            renderEditorTracks();
-        } catch(e) { alert("Could not fetch tracks."); }
-    }
-
-    function renderEditorTracks() {
-        const container = document.getElementById('editor-tracks-container');
-        container.innerHTML = tempTracks.map((t, i) => `
-            <div class="track-row">
-                ${i+1}. <input value="${t.name}" oninput="tempTracks[${i}].name=this.value">
-                <input type="number" value="${t.rating}" style="width:40px" oninput="tempTracks[${i}].rating=this.value">
-                <button onclick="tempTracks[${i}].isFav=!tempTracks[${i}].isFav; renderEditorTracks()">★</button>
-            </div>
-        `).join('');
-    }
-
-    function openRatingEditor(id) {
-        currentRatingId = id;
-        const a = albums.find(x => x.id === id);
-        document.getElementById('r-title').innerText = a.title;
-        document.getElementById('r-artist').innerText = a.artist;
-        tempTracks = a.tracks || [];
-        document.getElementById('main-view').style.display = 'none';
-        document.getElementById('rating-view').style.display = 'block';
-        renderEditorTracks();
-    }
-
-    function saveRatings() {
-        const a = albums.find(x => x.id === currentRatingId);
-        a.tracks = tempTracks;
-        a.rating = (tempTracks.reduce((acc, t) => acc + parseFloat(t.rating||0), 0) / tempTracks.length).toFixed(1);
-        localStorage.setItem('myAlbumRaterData', JSON.stringify(albums));
-        closeRatingEditor();
-    }
-
-    function closeRatingEditor() {
-        document.getElementById('rating-view').style.display = 'none';
-        document.getElementById('main-view').style.display = 'block';
-        renderGrid();
-    }
-
-    function openBasicModal() { document.getElementById('basicModal').classList.add('active'); }
-    function saveBasicInfo() { 
-        albums.push({id: Date.now().toString(), title: document.getElementById('b-title').value, artist: document.getElementById('b-artist').value, tracks: []});
-        localStorage.setItem('myAlbumRaterData', JSON.stringify(albums));
-        document.getElementById('basicModal').classList.remove('active');
-        renderGrid();
+    function openBasicModal() {
+        const title = prompt("Album Title");
+        const artist = prompt("Artist");
+        if (title && artist) {
+            albums.push({id: Date.now().toString(), title, artist, tracks: []});
+            localStorage.setItem('myAlbumRaterData', JSON.stringify(albums));
+            renderGrid();
+        }
     }
 
     renderGrid();
