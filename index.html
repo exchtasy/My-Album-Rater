@@ -799,11 +799,12 @@
                 if (bigThree.length > 0) {
                     let bigThreeHtml = '';
                     
-                    // Clean, scaled-down B&W SVG Crown
-                    const cleanCrown = `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 5px; vertical-align: -1px;"><path d="M3 16l-3-10 7.104 4 4.896-8 4.896 8 7.104-4-3 10h-18zm0 2v4h18v-4h-18z"/></svg>`;
+                    // FIXED CROWN: Added flex-shrink: 0, min-width, and adjusted alignment
+                    const cleanCrown = `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink: 0; min-width: 13px; margin-right: 6px; margin-top: 3px;"><path d="M3 16l-3-10 7.104 4 4.896-8 4.896 8 7.104-4-3 10h-18zm0 2v4h18v-4h-18z"/></svg>`;
 
                     bigThree.forEach(t => {
-                        bigThreeHtml += `<li>${cleanCrown} <span>${t.name}</span></li>`;
+                        // FIXED LIST ITEM: Added align-items: flex-start and word wrapping
+                        bigThreeHtml += `<li style="display: flex; align-items: flex-start; margin-bottom: 8px;">${cleanCrown} <span style="line-height: 1.3; word-wrap: break-word; overflow-wrap: break-word;">${t.name}</span></li>`;
                     });
                     
                     flexHtml += `
@@ -818,7 +819,7 @@
                 if (favs.length > 0) {
                     let favsHtml = '';
                     favs.forEach(t => {
-                        favsHtml += `<li>${t.name || 'Unknown Track'}</li>`;
+                        favsHtml += `<li style="line-height: 1.3; margin-bottom: 6px;">${t.name || 'Unknown Track'}</li>`;
                     });
                     
                     flexHtml += `
@@ -930,7 +931,7 @@
         });
     }
 
-    // --- STATS LOGIC (Fixed Top Artist) ---
+    // --- STATS LOGIC (Fixed Stacking/Cumulative Top Artist) ---
     function openStatsModal() {
         const ratedAlbums = albums.filter(a => a.isRated && a.rating !== null);
         const totalRated = ratedAlbums.length;
@@ -942,20 +943,21 @@
         ratedAlbums.forEach(a => {
             sumRatings += parseFloat(a.rating || 0);
             
-            // Gather stats for Top Artist
+            // Initialize Artist Data if they don't exist yet
             if (!artistData[a.artist]) {
-                artistData[a.artist] = { albumScore: 0, albumCount: 0, songScore: 0, songCount: 0 };
+                artistData[a.artist] = { totalCumulativeScore: 0 };
             }
-            artistData[a.artist].albumScore += parseFloat(a.rating || 0);
-            artistData[a.artist].albumCount++;
+            
+            // Add Album Score
+            artistData[a.artist].totalCumulativeScore += parseFloat(a.rating || 0);
 
+            // Add Every Song Score
             if(a.tracks) {
                 a.tracks.forEach(t => {
                     let trackRating = parseFloat(t.rating);
                     if(!isNaN(trackRating)) {
                         if(trackRating === 5.0) perfectSongs++;
-                        artistData[a.artist].songScore += trackRating;
-                        artistData[a.artist].songCount++;
+                        artistData[a.artist].totalCumulativeScore += trackRating;
                     }
                 });
             }
@@ -963,20 +965,13 @@
 
         const globalAvg = totalRated > 0 ? (sumRatings / totalRated).toFixed(1) : '-.-';
         
-        // Calculate Top Artist based on both Song & Album averages
+        // Find Top Artist strictly mathematically (Highest cumulative points)
         let topArtist = '-';
-        let highestCombinedScore = -1;
+        let highestScore = -1;
 
         for (let artist in artistData) {
-            let data = artistData[artist];
-            let avgAlbum = data.albumCount > 0 ? data.albumScore / data.albumCount : 0;
-            let avgSong = data.songCount > 0 ? data.songScore / data.songCount : 0;
-            
-            // We combine the averages to find the true top performer
-            let combinedScore = avgAlbum + avgSong; 
-            
-            if (combinedScore > highestCombinedScore) {
-                highestCombinedScore = combinedScore;
+            if (artistData[artist].totalCumulativeScore > highestScore) {
+                highestScore = artistData[artist].totalCumulativeScore;
                 topArtist = artist;
             }
         }
