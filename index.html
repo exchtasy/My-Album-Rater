@@ -82,18 +82,6 @@
             font-size: 13px; font-weight: 500; cursor: pointer; outline: none;
         }
 
-        /* Stats Dashboard */
-        .stats-container {
-            display: flex; gap: 15px; margin-bottom: 30px; flex-wrap: wrap;
-        }
-        .stat-box {
-            flex: 1; min-width: 120px; background: var(--card-bg); border: 1px solid var(--border);
-            padding: 15px; border-radius: 6px; text-align: center;
-        }
-        .stat-value { font-size: 24px; font-weight: 700; color: var(--text); margin-bottom: 5px; }
-        .stat-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: var(--text-light); }
-        .stat-value.perfect-text { color: var(--perfect-green); }
-
         /* Controls Section */
         .controls-container {
             display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;
@@ -106,7 +94,6 @@
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
             gap: 40px;
-            /* Removed align-items: start; so cards stretch to match heights */
         }
 
         /* --- PITCHFORK LAYOUT --- */
@@ -158,7 +145,7 @@
             background: var(--card-bg);
             display: flex; flex-direction: column;
             transition: background-color 0.3s, border-color 0.3s;
-            height: 100%; box-sizing: border-box; /* Forces row alignment */
+            height: 100%; box-sizing: border-box;
         }
         
         .card-content { flex-grow: 1; }
@@ -182,7 +169,7 @@
         .btn-rate:hover { opacity: 0.8; }
         
         .menu-container { position: relative; }
-        .settings-dropdown { position: relative; } /* Used for top settings gear */
+        .settings-dropdown { position: relative; }
         
         .dots-btn {
             background: none; border: none; font-size: 22px; cursor: pointer;
@@ -207,19 +194,40 @@
         .dropdown button:hover, .dropdown label.import-label:hover { background: var(--surface); }
         .text-red { color: #d93025 !important; }
 
-        /* --- BASIC INFO MODAL --- */
+        /* --- MODALS (Info & Stats) --- */
         .modal-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--modal-overlay); z-index: 100;
             align-items: center; justify-content: center; backdrop-filter: blur(4px);
         }
         .modal-overlay.active { display: flex; }
+        
         .modal-box {
             background: var(--card-bg); border: 1px solid var(--border); padding: 30px;
             border-radius: 8px; width: 100%; max-width: 400px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.1);
         }
         .modal-box h2 { margin: 0 0 20px 0; font-size: 20px; color: var(--text); }
+        
+        /* Stats Specific UI */
+        .stats-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;
+        }
+        .stat-card {
+            background: var(--surface); border: 1px solid var(--border);
+            padding: 20px 15px; border-radius: 6px; text-align: center;
+        }
+        .stat-card-title {
+            font-size: 10px; text-transform: uppercase; letter-spacing: 1px;
+            color: var(--text-light); margin-bottom: 8px; font-weight: 600;
+        }
+        .stat-card-value {
+            font-size: 26px; font-family: Georgia, serif; font-weight: 700;
+            color: var(--text); line-height: 1.1;
+        }
+        .stat-card-value.perfect { color: var(--perfect-green); }
+
+        /* Form Inputs */
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 5px; font-size: 11px; text-transform: uppercase; font-weight: 600; color: var(--text-light); }
         .form-group input, .form-group textarea, .overall-review-area textarea {
@@ -228,7 +236,7 @@
             background-color: var(--bg); color: var(--text);
         }
         .form-group input:focus, .overall-review-area textarea:focus { outline: none; border-color: var(--accent); }
-        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px; }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px; }
 
         /* --- FULL SCREEN RATING EDITOR --- */
         .editor-container { max-width: 700px; margin: 0 auto; padding: 40px 20px; }
@@ -287,7 +295,6 @@
         <div class="site-header">
             <h1>My Album Rater</h1>
             <div class="header-actions">
-                <button class="btn btn-outline" onclick="toggleTheme()">🌓 Theme</button>
                 <div class="settings-dropdown">
                     <button class="btn btn-outline" onclick="toggleMenu('settings')">⚙️ Settings</button>
                     <div class="dropdown" id="menu-settings">
@@ -298,16 +305,12 @@
                         </label>
                     </div>
                 </div>
+                <button class="btn btn-outline" onclick="toggleTheme()">🌓 Theme</button>
+                <button class="btn btn-outline" onclick="openStatsModal()">📊 Stats</button>
                 <button class="btn" onclick="openBasicModal()">+ Add Album</button>
             </div>
         </div>
 
-        <!-- Stats Section -->
-        <div class="stats-container" id="stats-container">
-            <!-- Populated via JS -->
-        </div>
-
-        <!-- Filtering & Sorting -->
         <div class="controls-container">
             <div style="font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">My Library</div>
             <div class="filters">
@@ -327,6 +330,19 @@
         </div>
 
         <div class="grid" id="albumGrid"></div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="statsModal">
+    <div class="modal-box" style="max-width: 500px;">
+        <h2 style="text-align: center; font-family: Georgia, serif; font-style: italic; margin-bottom: 25px;">Library Analytics</h2>
+        
+        <div class="stats-grid" id="stats-grid-content">
+            </div>
+
+        <div class="modal-actions" style="justify-content: center; margin-top: 20px;">
+            <button class="btn btn-outline" style="width: 100%;" onclick="closeStatsModal()">Close</button>
+        </div>
     </div>
 </div>
 
@@ -426,8 +442,8 @@
     let currentSort = 'default';
     let currentFilter = 'all';
 
-    // --- STATS LOGIC ---
-    function renderStats() {
+    // --- STATS LOGIC (Modal Overlay) ---
+    function openStatsModal() {
         const ratedAlbums = albums.filter(a => a.isRated && a.rating !== null);
         const totalRated = ratedAlbums.length;
         
@@ -457,24 +473,30 @@
             }
         }
 
-        document.getElementById('stats-container').innerHTML = `
-            <div class="stat-box">
-                <div class="stat-value">${totalRated}</div>
-                <div class="stat-label">Albums Rated</div>
+        document.getElementById('stats-grid-content').innerHTML = `
+            <div class="stat-card">
+                <div class="stat-card-title">Albums Rated</div>
+                <div class="stat-card-value">${totalRated}</div>
             </div>
-            <div class="stat-box">
-                <div class="stat-value">${globalAvg}</div>
-                <div class="stat-label">Global Avg Score</div>
+            <div class="stat-card">
+                <div class="stat-card-title">Global Avg</div>
+                <div class="stat-card-value">${globalAvg}</div>
             </div>
-            <div class="stat-box">
-                <div class="stat-value perfect-text">${perfects}</div>
-                <div class="stat-label">Perfect 5.0s</div>
+            <div class="stat-card">
+                <div class="stat-card-title">Perfect Scores</div>
+                <div class="stat-card-value perfect-text">${perfects}</div>
             </div>
-            <div class="stat-box">
-                <div class="stat-value" style="font-size:18px; margin-top:5px;">${topArtist}</div>
-                <div class="stat-label">Top Artist (Most 5s)</div>
+            <div class="stat-card">
+                <div class="stat-card-title">Top Artist</div>
+                <div class="stat-card-value" style="font-size: 20px; font-family: 'Jost', sans-serif;">${topArtist}</div>
             </div>
         `;
+
+        document.getElementById('statsModal').classList.add('active');
+    }
+
+    function closeStatsModal() {
+        document.getElementById('statsModal').classList.remove('active');
     }
 
     // --- SORTING & FILTERING ---
@@ -529,9 +551,6 @@
     function renderGrid() {
         const grid = document.getElementById('albumGrid');
         grid.innerHTML = '';
-        
-        // Update stats
-        renderStats();
 
         // Apply Filters
         let displayAlbums = [...albums];
