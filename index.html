@@ -367,23 +367,24 @@
     </div>
 </div>
 
+<!-- Add Album Modal -->
 <div class="modal-overlay" id="basicModal">
     <div class="modal-box">
         <h2 id="modalTitle">Add New Album</h2>
         
         <div class="form-group">
             <label>Album Title</label>
-            <input type="text" id="b-title" placeholder="e.g. Blonde">
+            <input type="text" id="b-title" placeholder="e.g. Purpose">
         </div>
         
         <div class="form-group">
             <label>Artist</label>
-            <input type="text" id="b-artist" placeholder="e.g. Frank Ocean">
+            <input type="text" id="b-artist" placeholder="e.g. Justin Bieber">
         </div>
         
         <div class="form-group">
             <label>Release Year (Optional)</label>
-            <input type="text" id="b-year" placeholder="e.g. 2016">
+            <input type="text" id="b-year" placeholder="e.g. 2015">
         </div>
         
         <div class="form-group">
@@ -561,11 +562,9 @@
         currentRatingId = id;
         const album = albums.find(a => a.id === id);
         
-        // Load original data
         tempTracks = album.tracks ? JSON.parse(JSON.stringify(album.tracks)) : [];
         tempReview = album.review || "";
         
-        // Load relisten data, or create a blank slate using the original track names
         if (album.reListenTracks && album.reListenTracks.length > 0) {
             tempReListenTracks = JSON.parse(JSON.stringify(album.reListenTracks));
         } else {
@@ -584,7 +583,6 @@
         document.getElementById('r-year').innerText = album.year;
         document.getElementById('r-cover').src = album.cover || 'https://via.placeholder.com/170?text=No+Cover';
         
-        // Always open in 'original' mode first
         currentEditorMode = 'original';
         document.getElementById('editor-mode-original').classList.add('active');
         document.getElementById('editor-mode-relisten').classList.remove('active');
@@ -733,12 +731,10 @@
             tempReListenReview = document.getElementById('r-review').value;
         }
 
-        // Save Original Data
         album.review = tempReview;
         album.tracks = tempTracks;
         album.rating = calculateAverage(tempTracks);
         
-        // Save Re-Listen Data
         let hasReListen = tempReListenTracks.some(t => t.rating !== '');
         if (hasReListen) {
             album.reListenReview = tempReListenReview;
@@ -802,8 +798,12 @@
                 
                 if (bigThree.length > 0) {
                     let bigThreeHtml = '';
+                    
+                    // Clean, scaled-down B&W SVG Crown
+                    const cleanCrown = `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 5px; vertical-align: -1px;"><path d="M3 16l-3-10 7.104 4 4.896-8 4.896 8 7.104-4-3 10h-18zm0 2v4h18v-4h-18z"/></svg>`;
+
                     bigThree.forEach(t => {
-                        bigThreeHtml += `<li><span class="crown-icon">♛</span> <span>${t.name}</span></li>`;
+                        bigThreeHtml += `<li>${cleanCrown} <span>${t.name}</span></li>`;
                     });
                     
                     flexHtml += `
@@ -930,25 +930,57 @@
         });
     }
 
-    // --- STATS LOGIC ---
+    // --- STATS LOGIC (Fixed Top Artist) ---
     function openStatsModal() {
         const ratedAlbums = albums.filter(a => a.isRated && a.rating !== null);
         const totalRated = ratedAlbums.length;
         
         let perfectSongs = 0;
         let sumRatings = 0;
+        let artistData = {};
         
         ratedAlbums.forEach(a => {
             sumRatings += parseFloat(a.rating || 0);
+            
+            // Gather stats for Top Artist
+            if (!artistData[a.artist]) {
+                artistData[a.artist] = { albumScore: 0, albumCount: 0, songScore: 0, songCount: 0 };
+            }
+            artistData[a.artist].albumScore += parseFloat(a.rating || 0);
+            artistData[a.artist].albumCount++;
+
             if(a.tracks) {
                 a.tracks.forEach(t => {
-                    if(parseFloat(t.rating) === 5.0) perfectSongs++;
+                    let trackRating = parseFloat(t.rating);
+                    if(!isNaN(trackRating)) {
+                        if(trackRating === 5.0) perfectSongs++;
+                        artistData[a.artist].songScore += trackRating;
+                        artistData[a.artist].songCount++;
+                    }
                 });
             }
         });
 
         const globalAvg = totalRated > 0 ? (sumRatings / totalRated).toFixed(1) : '-.-';
         
+        // Calculate Top Artist based on both Song & Album averages
+        let topArtist = '-';
+        let highestCombinedScore = -1;
+
+        for (let artist in artistData) {
+            let data = artistData[artist];
+            let avgAlbum = data.albumCount > 0 ? data.albumScore / data.albumCount : 0;
+            let avgSong = data.songCount > 0 ? data.songScore / data.songCount : 0;
+            
+            // We combine the averages to find the true top performer
+            let combinedScore = avgAlbum + avgSong; 
+            
+            if (combinedScore > highestCombinedScore) {
+                highestCombinedScore = combinedScore;
+                topArtist = artist;
+            }
+        }
+
         document.getElementById('stats-grid-content').innerHTML = `
             <div class="stat-card">
                 <div class="stat-card-title">Albums Rated</div>
@@ -963,8 +995,8 @@
                 <div class="stat-card-value" style="color: var(--perfect-green);">${perfectSongs}</div>
             </div>
             <div class="stat-card">
-                <div class="stat-card-title">Total Library</div>
-                <div class="stat-card-value">${albums.length}</div>
+                <div class="stat-card-title">Top Artist</div>
+                <div class="stat-card-value" style="font-size: 16px; display: flex; align-items: center; justify-content: center; text-align: center; height: 100%; padding: 0 5px;">${topArtist}</div>
             </div>
         `;
         document.getElementById('statsModal').classList.add('active');
