@@ -667,7 +667,7 @@
                     <div class="track-num">${index + 1}.</div>
                     <input type="text" class="track-name-input" value="${t.name || ''}" onchange="updateTrackName(${index}, this.value)" placeholder="Track title...">
                     
-                    <input type="number" class="track-rating-input" value="${t.rating || ''}" step="0.1" min="0" max="5" oninput="updateTrackRating(${index}, this.value)">
+                    <input type="number" class="track-rating-input" value="${t.rating || ''}" step="0.1" min="0" max="5" oninput="updateTrackRating(${index}, this)">
                     
                     <button class="icon-btn" onclick="toggleFav(${index})" title="Favorite Track">
                         <span class="star-icon ${starClass}">★</span>
@@ -715,15 +715,27 @@
         renderEditorTracks();
     }
 
-    function updateTrackRating(index, val) {
-        if (val !== '') {
-            let num = parseFloat(val);
-            if (num > 5) val = '5';
-            else if (num < 0) val = '0';
+    function updateTrackRating(index, element) {
+    let val = element.value;
+    
+    if (val !== '') {
+        let num = parseFloat(val);
+        
+        // If the number is greater than 5, force it to 5
+        if (num > 5) {
+            val = '5';
+            element.value = val; // This instantly updates the text box visually
+        } 
+        // If the number is less than 0, force it to 0
+        else if (num < 0) {
+            val = '0';
+            element.value = val;
         }
-        getActiveTracks()[index].rating = val;
-        updateLiveRating();
     }
+    
+    getActiveTracks()[index].rating = val;
+    updateLiveRating();
+}
 
     function calculateAverage(tracks) {
         let total = 0; let count = 0;
