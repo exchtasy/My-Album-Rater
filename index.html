@@ -322,11 +322,38 @@
         .tracklist-search-status.is-success { color: #188038; }
         .track-move-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
 
+        /* --- TRACKLIST LOCK, COMPACT SEARCH & HELP (ADDITIVE) --- */
+        .track-order-locked .track-move-btn { display: none; }
+        .track-order-lock-button { white-space: nowrap; }
+        .tracklist-search-button {
+            width: 34px; min-width: 34px; height: 30px; padding: 0 !important;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 18px !important; line-height: 1;
+        }
+        .tracklist-info { position: relative; display: flex; align-items: center; }
+        .tracklist-info-button {
+            width: 22px; height: 22px; padding: 0; border: 1px solid var(--border); border-radius: 50%;
+            background: transparent; color: var(--text-light); font: 600 12px/1 Georgia, serif; cursor: pointer;
+            transition: 0.2s;
+        }
+        .tracklist-info-button:hover, .tracklist-info-button:focus { border-color: var(--text); color: var(--text); outline: none; }
+        .tracklist-info-tooltip {
+            position: absolute; z-index: 20; top: calc(100% + 9px); right: 0; width: 300px;
+            padding: 11px 12px; border: 1px solid var(--border); border-radius: 6px;
+            background: var(--card-bg); color: var(--text); box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            font-size: 12px; font-weight: 400; line-height: 1.45; text-align: left;
+            opacity: 0; pointer-events: none; transform: translateY(-4px); transition: opacity 0.18s, transform 0.18s;
+        }
+        .tracklist-info:hover .tracklist-info-tooltip,
+        .tracklist-info-tooltip.is-open { opacity: 1; pointer-events: auto; transform: translateY(0); }
+
         @media (max-width: 600px) {
             .track-list-header { flex-wrap: wrap; gap: 8px; align-items: flex-start; }
             .track-list-header > h3 { width: 100%; }
             .tracklist-search { flex: 1; min-width: 0; }
             .tracklist-search-input { width: 100%; min-width: 0; }
+            .tracklist-search-input { flex: 1; width: auto; }
+            .tracklist-info-tooltip { width: min(300px, calc(100vw - 40px)); }
         }
     </style>
 </head>
@@ -454,9 +481,14 @@
             <div class="track-list-header">
                 <h3 style="margin:0; font-size:16px;">Tracklist</h3>
                 <button class="btn btn-outline" style="padding: 6px 12px; font-size: 12px;" onclick="addTrack()">+ Add Track</button>
+                <button id="track-order-lock-button" class="btn btn-outline track-order-lock-button" style="padding: 6px 12px; font-size: 12px;" onclick="toggleTrackOrderLock()" aria-pressed="false" title="Hide track move controls while rating">✓ Confirm Tracklist</button>
                 <div class="tracklist-search">
                     <input id="lastfm-tracklist-query" class="tracklist-search-input" type="text" placeholder="Album or Artist + Album" aria-label="Album search for tracklist" onkeydown="if (event.key === 'Enter') autoFillTracklist()">
-                    <button id="lastfm-tracklist-button" class="btn btn-outline" style="padding: 6px 12px; font-size: 12px; white-space: nowrap;" onclick="autoFillTracklist()">Auto-Fill Tracklist</button>
+                    <button id="lastfm-tracklist-button" class="btn btn-outline tracklist-search-button" style="white-space: nowrap;" onclick="autoFillTracklist()" aria-label="Search and auto-fill tracklist" title="Search and auto-fill tracklist">↵</button>
+                    <div class="tracklist-info">
+                        <button id="lastfm-tracklist-info-button" class="tracklist-info-button" type="button" onclick="toggleLastFmTracklistHelp()" aria-label="How tracklist search works" aria-expanded="false">i</button>
+                        <div id="lastfm-tracklist-help" class="tracklist-info-tooltip" role="tooltip">Type the album name and artist for best results. If you are looking for a specific version, like a Deluxe Edition, make sure to type 'Deluxe' in your search so the correct tracklist is fetched. You can manually edit, add, or sort tracks after auto-filling.</div>
+                    </div>
                 </div>
             </div>
             <div id="lastfm-tracklist-status" class="tracklist-search-status" role="status" aria-live="polite"></div>
@@ -491,6 +523,7 @@
     let tempReview = "";
     let tempReListenReview = "";
     let currentEditorMode = 'original'; // 'original' or 'relisten'
+    let trackOrderLocked = false;
 
     // --- LAST.FM TRACKLIST SEARCH (ADDITIVE) ---
     // Paste your free Last.fm API key between these quotes.
@@ -505,6 +538,26 @@
         const status = document.getElementById('lastfm-tracklist-status');
         status.textContent = message;
         status.className = 'tracklist-search-status' + (type ? ` is-${type}` : '');
+    }
+
+    function toggleLastFmTracklistHelp() {
+        const tooltip = document.getElementById('lastfm-tracklist-help');
+        const infoButton = document.getElementById('lastfm-tracklist-info-button');
+        const isOpen = tooltip.classList.toggle('is-open');
+        infoButton.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    }
+
+    function updateTrackOrderLockButton() {
+        const button = document.getElementById('track-order-lock-button');
+        button.textContent = trackOrderLocked ? '↕ Edit Order' : '✓ Confirm Tracklist';
+        button.setAttribute('aria-pressed', trackOrderLocked ? 'true' : 'false');
+        button.title = trackOrderLocked ? 'Show track move controls' : 'Hide track move controls while rating';
+    }
+
+    function toggleTrackOrderLock() {
+        trackOrderLocked = !trackOrderLocked;
+        updateTrackOrderLockButton();
+        renderEditorTracks();
     }
 
     function asLastFmArray(value) {
@@ -576,6 +629,7 @@
             return;
         }
 
+        input.value = '';
         const originalButtonText = button.textContent;
         button.disabled = true;
         button.textContent = 'Searching...';
@@ -730,6 +784,7 @@
     // --- RATING EDITOR ---
     function openRatingEditor(id) {
         currentRatingId = id;
+        trackOrderLocked = false;
         const album = albums.find(a => a.id === id);
         
         tempTracks = album.tracks ? JSON.parse(JSON.stringify(album.tracks)) : [];
@@ -762,6 +817,7 @@
         document.getElementById('rating-view').style.display = 'block';
         window.scrollTo(0,0);
         
+        updateTrackOrderLockButton();
         renderEditorTracks();
         updateLiveRating();
     }
@@ -800,6 +856,7 @@
         tracks.forEach((t, index) => {
             const row = document.createElement('div');
             row.className = 'track-wrapper';
+            if (trackOrderLocked) row.classList.add('track-order-locked');
             
             const starClass = t.isFav ? 'active' : '';
             const noteIcon = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>`;
