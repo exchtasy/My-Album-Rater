@@ -308,6 +308,26 @@
         .track-note-wrapper.active { display: block; }
         .track-note-input { width: 100%; padding: 8px; border: none; border-left: 2px solid var(--border); background: var(--surface); color: var(--text); font-family: inherit; font-size: 13px; box-sizing: border-box; outline: none;}
         .track-note-input:focus { border-left-color: var(--text); }
+
+        /* --- LAST.FM TRACKLIST SEARCH (ADDITIVE) --- */
+        .track-list-header > h3 { margin-right: auto !important; }
+        .tracklist-search { display: flex; align-items: center; gap: 8px; }
+        .tracklist-search-input {
+            width: 220px; padding: 6px 9px; border: 1px solid var(--border); border-radius: 4px;
+            background: var(--bg); color: var(--text); font: inherit; font-size: 12px; box-sizing: border-box;
+        }
+        .tracklist-search-input:focus { outline: none; border-color: var(--accent); }
+        .tracklist-search-status { min-height: 18px; margin: -7px 0 8px; color: var(--text-light); font-size: 12px; }
+        .tracklist-search-status.is-error { color: #d93025; }
+        .tracklist-search-status.is-success { color: #188038; }
+        .track-move-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+
+        @media (max-width: 600px) {
+            .track-list-header { flex-wrap: wrap; gap: 8px; align-items: flex-start; }
+            .track-list-header > h3 { width: 100%; }
+            .tracklist-search { flex: 1; min-width: 0; }
+            .tracklist-search-input { width: 100%; min-width: 0; }
+        }
     </style>
 </head>
 <body>
@@ -434,7 +454,12 @@
             <div class="track-list-header">
                 <h3 style="margin:0; font-size:16px;">Tracklist</h3>
                 <button class="btn btn-outline" style="padding: 6px 12px; font-size: 12px;" onclick="addTrack()">+ Add Track</button>
+                <div class="tracklist-search">
+                    <input id="lastfm-tracklist-query" class="tracklist-search-input" type="text" placeholder="Album or Artist + Album" aria-label="Album search for tracklist" onkeydown="if (event.key === 'Enter') autoFillTracklist()">
+                    <button id="lastfm-tracklist-button" class="btn btn-outline" style="padding: 6px 12px; font-size: 12px; white-space: nowrap;" onclick="autoFillTracklist()">Auto-Fill Tracklist</button>
+                </div>
             </div>
+            <div id="lastfm-tracklist-status" class="tracklist-search-status" role="status" aria-live="polite"></div>
             
             <div id="editor-tracks-container"></div>
         </div>
@@ -467,8 +492,127 @@
     let tempReListenReview = "";
     let currentEditorMode = 'original'; // 'original' or 'relisten'
 
+    // --- LAST.FM TRACKLIST SEARCH (ADDITIVE) ---
+    // Paste your free Last.fm API key between these quotes.
+    const LASTFM_API_KEY = '08d80a6f38b6aef4a5b60b05ef0e2c57';
+    const LASTFM_API_URL = 'https://ws.audioscrobbler.com/2.0/';
+
     function saveToStorage() {
         localStorage.setItem('myAlbumRaterData', JSON.stringify(albums));
+    }
+
+    function setLastFmTracklistStatus(message, type = '') {
+        const status = document.getElementById('lastfm-tracklist-status');
+        status.textContent = message;
+        status.className = 'tracklist-search-status' + (type ? ` is-${type}` : '');
+    }
+
+    function asLastFmArray(value) {
+        if (!value) return [];
+        return Array.isArray(value) ? value : [value];
+    }
+
+    function getArtistAndAlbumFromQuery(query) {
+        // Supports: "Album title", "Artist + Album", "Artist - Album", and "Artist by Album".
+        const artistAlbumMatch = query.match(/^(.+?)\s*(?:\+|[-–—]|\bby\b)\s*(.+)$/i);
+        if (!artistAlbumMatch) return null;
+
+        return {
+            artist: artistAlbumMatch[1].trim(),
+            album: artistAlbumMatch[2].trim()
+        };
+    }
+
+    async function requestLastFm(method, parameters) {
+        const searchParameters = new URLSearchParams({
+            method: method,
+            api_key: LASTFM_API_KEY,
+            format: 'json',
+            ...parameters
+        });
+
+        const response = await fetch(`${LASTFM_API_URL}?${searchParameters.toString()}`);
+        const data = await response.json();
+
+        if (!response.ok || data.error) {
+            throw new Error(data.message || `Last.fm request failed (${response.status}).`);
+        }
+
+        return data;
+    }
+
+    async function resolveLastFmAlbum(query) {
+        const artistAndAlbum = getArtistAndAlbumFromQuery(query);
+        if (artistAndAlbum) return artistAndAlbum;
+
+        const searchData = await requestLastFm('album.search', { album: query, limit: '1' });
+        const matches = searchData.results && searchData.results.albummatches && searchData.results.albummatches.album;
+        const firstMatch = asLastFmArray(matches)[0];
+
+        if (!firstMatch || !firstMatch.artist || !firstMatch.name) {
+            throw new Error('Album not found.');
+        }
+
+        return { artist: firstMatch.artist, album: firstMatch.name };
+    }
+
+    function createLastFmTrack(trackName) {
+        return { name: trackName, rating: '', isFav: false, note: '', showNote: false };
+    }
+
+    async function autoFillTracklist() {
+        const input = document.getElementById('lastfm-tracklist-query');
+        const button = document.getElementById('lastfm-tracklist-button');
+        const query = input.value.trim();
+
+        if (!query) {
+            setLastFmTracklistStatus('Enter an album title or Artist + Album first.', 'error');
+            input.focus();
+            return;
+        }
+
+        if (LASTFM_API_KEY === 'PASTE_YOUR_LASTFM_API_KEY_HERE') {
+            setLastFmTracklistStatus('Add your Last.fm API key to LASTFM_API_KEY before searching.', 'error');
+            return;
+        }
+
+        const originalButtonText = button.textContent;
+        button.disabled = true;
+        button.textContent = 'Searching...';
+        setLastFmTracklistStatus('Searching Last.fm...');
+
+        try {
+            const matchedAlbum = await resolveLastFmAlbum(query);
+            const albumInfo = await requestLastFm('album.getInfo', {
+                artist: matchedAlbum.artist,
+                album: matchedAlbum.album,
+                autocorrect: '1'
+            });
+            const rawTracks = albumInfo.album && albumInfo.album.tracks && albumInfo.album.tracks.track;
+            const trackNames = asLastFmArray(rawTracks)
+                .map(track => (typeof track === 'string' ? track : track && track.name))
+                .map(name => (name || '').trim())
+                .filter(Boolean);
+
+            if (trackNames.length === 0) {
+                setLastFmTracklistStatus(`Last.fm found “${matchedAlbum.album}”, but it has no tracklist to add.`, 'error');
+                return;
+            }
+
+            // Append only after both API calls succeeded; existing typed tracks are never replaced or removed.
+            const activeTracks = getActiveTracks();
+            trackNames.forEach(trackName => activeTracks.push(createLastFmTrack(trackName)));
+
+            renderEditorTracks();
+            updateLiveRating();
+            setLastFmTracklistStatus(`Added ${trackNames.length} track${trackNames.length === 1 ? '' : 's'} from Last.fm. Existing tracks were kept.`, 'success');
+        } catch (error) {
+            console.error('Last.fm tracklist search failed:', error);
+            setLastFmTracklistStatus('Couldn’t load a tracklist. Check the album name, your API key, and your connection, then try again.', 'error');
+        } finally {
+            button.disabled = false;
+            button.textContent = originalButtonText;
+        }
     }
 
     // --- THEME & MENUS ---
@@ -676,6 +820,9 @@
                     <button class="icon-btn" onclick="toggleNote(${index})" title="Add Note">
                         ${noteIcon}
                     </button>
+
+                    <button class="icon-btn track-move-btn" onclick="moveTrack(${index}, -1)" title="Move track up" ${index === 0 ? 'disabled' : ''}>↑</button>
+                    <button class="icon-btn track-move-btn" onclick="moveTrack(${index}, 1)" title="Move track down" ${index === tracks.length - 1 ? 'disabled' : ''}>↓</button>
                     
                     <button class="icon-btn" style="color: #d93025; font-size:18px;" onclick="removeTrack(${index})" title="Remove">×</button>
                 </div>
@@ -690,6 +837,16 @@
     function addTrack() {
         let tracks = getActiveTracks();
         tracks.push({ name: '', rating: '', isFav: false, note: '', showNote: false });
+        renderEditorTracks();
+    }
+
+    function moveTrack(index, direction) {
+        let tracks = getActiveTracks();
+        const destinationIndex = index + direction;
+
+        if (destinationIndex < 0 || destinationIndex >= tracks.length) return;
+
+        [tracks[index], tracks[destinationIndex]] = [tracks[destinationIndex], tracks[index]];
         renderEditorTracks();
     }
     
