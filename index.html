@@ -32,6 +32,32 @@
             --card-bg: #181818;
             --modal-overlay: rgba(18, 18, 18, 0.9);
         }
+
+        /* Warm paper-like alternative */
+        [data-theme="sepia"] {
+            --bg: #f5f0e7;
+            --surface: #ebe2d2;
+            --text: #32281f;
+            --text-light: #76685b;
+            --border: #cdbfae;
+            --accent: #32281f;
+            --perfect-green: #168d57;
+            --card-bg: #faf6ee;
+            --modal-overlay: rgba(245, 240, 231, 0.9);
+        }
+
+        /* Cool, deep-night alternative */
+        [data-theme="midnight"] {
+            --bg: #0b1020;
+            --surface: #141c31;
+            --text: #edf2ff;
+            --text-light: #9aa8c0;
+            --border: #283552;
+            --accent: #edf2ff;
+            --perfect-green: #50e3a4;
+            --card-bg: #10182a;
+            --modal-overlay: rgba(11, 16, 32, 0.9);
+        }
         
         body {
             font-family: 'Jost', sans-serif;
@@ -77,6 +103,9 @@
         .btn:hover { opacity: 0.8; }
         .btn-outline { background-color: transparent; color: var(--text); border: 1px solid var(--border); }
         .btn-outline:hover { background-color: var(--surface); }
+        .btn:focus-visible, .icon-btn:focus-visible, .big-three-edit-btn:focus-visible, .big-three-order-btn:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+        .btn-with-icon, .dropdown-action { display: inline-flex; align-items: center; gap: 7px; }
+        .button-icon, .dropdown-icon { width: 15px; height: 15px; flex: 0 0 auto; }
 
         select.control-select {
             padding: 6px 10px;
@@ -182,6 +211,18 @@
             margin-bottom: 8px; display: flex; justify-content: flex-start; align-items: center; gap: 10px;
         }
         .crown-icon { font-size: 14px; opacity: 0.8; color: var(--text); flex-shrink: 0; }
+        .big-three-label { display: flex; align-items: center; gap: 5px; }
+        .big-three-edit-btn, .big-three-order-btn {
+            display: inline-flex; align-items: center; justify-content: center; border: 0;
+            background: transparent; color: var(--text-light); cursor: pointer; padding: 1px; line-height: 1;
+        }
+        .big-three-edit-btn:hover, .big-three-order-btn:hover:not(:disabled) { color: var(--text); }
+        .big-three-edit-btn svg { width: 11px; height: 11px; }
+        .big-three-order-controls { display: inline-flex; gap: 2px; margin-left: auto; }
+        .big-three-order-btn { width: 17px; height: 17px; border: 1px solid var(--border); border-radius: 3px; }
+        .big-three-order-btn svg { width: 10px; height: 10px; }
+        .big-three-order-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .big-three-list.is-editing li { gap: 6px; }
 
         /* Card Actions & Three Dots Menu */
         .card-actions {
@@ -301,6 +342,7 @@
         /* Icons */
         .icon-btn { background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 5px; transition: 0.2s; color: var(--text-light); }
         .icon-btn:hover { transform: scale(1.1); color: var(--text); }
+        .icon-btn svg { width: 17px; height: 17px; }
         .star-icon { color: #ccc; font-size: 20px; line-height: 1; transition: 0.2s; }
         .star-icon.active { color: #f4b400; }
         
@@ -365,21 +407,21 @@
             <div class="header-left">
                 <h1>My Album Rater</h1>
                 <div class="settings-dropdown">
-                    <button class="btn btn-outline" onclick="toggleMenu('settings')">⚙️ Settings</button>
+                    <button class="btn btn-outline btn-with-icon" onclick="toggleMenu('settings')" aria-label="Open settings"><svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.12 2.12-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1.04 1.56V20.3h-3v-.08A1.7 1.7 0 0 0 10.66 18.7a1.7 1.7 0 0 0-1.88.34l-.06.06L6.6 16.98l.06-.06A1.7 1.7 0 0 0 7 15.04a1.7 1.7 0 0 0-1.56-1.04h-.08v-3h.08A1.7 1.7 0 0 0 7 9.96a1.7 1.7 0 0 0-.34-1.88L6.6 8.02 8.72 5.9l.06.06a1.7 1.7 0 0 0 1.88.34A1.7 1.7 0 0 0 11.7 4.74v-.08h3v.08a1.7 1.7 0 0 0 1.04 1.56 1.7 1.7 0 0 0 1.88-.34l.06-.06 2.12 2.12-.06.06A1.7 1.7 0 0 0 19.4 10c.24.63.85 1.04 1.52 1.04H21v3h-.08c-.67 0-1.28.41-1.52 1.04Z"></path></svg><span>Settings</span></button>
                     <div class="dropdown" id="menu-settings">
-                        <button onclick="exportData()">⬇️ Export Backup</button>
-                        <label class="import-label">
-                            ⬆️ Import Backup
+                        <button class="dropdown-action" onclick="exportData()"><svg class="dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M4 21h16"></path></svg><span>Export Backup</span></button>
+                        <label class="import-label dropdown-action">
+                            <svg class="dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21V9"></path><path d="m17 14-5-5-5 5"></path><path d="M4 3h16"></path></svg><span>Import Backup</span>
                             <input type="file" style="display:none" accept=".json" onchange="importData(event)">
                         </label>
                     </div>
                 </div>
-                <button class="btn btn-outline" onclick="toggleTheme()">🌓 Theme</button>
+                <button class="btn btn-outline btn-with-icon" onclick="toggleTheme()" title="Cycle theme"><svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3 6.5 6.5 0 0 0 21 12.8Z"></path></svg><span>Theme</span></button>
             </div>
             
             <div class="header-right">
-                <button class="btn btn-outline" onclick="openStatsModal()">📊 Stats</button>
-                <button class="btn" onclick="openBasicModal()">+ Add Album</button>
+                <button class="btn btn-outline btn-with-icon" onclick="openStatsModal()"><svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V5"></path><path d="M4 19h16"></path><path d="m7 15 4-4 3 2 5-6"></path></svg><span>Stats</span></button>
+                <button class="btn btn-with-icon" onclick="openBasicModal()"><svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg><span>Add Album</span></button>
             </div>
         </div>
 
@@ -391,11 +433,11 @@
                     <option value="unrated">Unrated Only</option>
                 </select>
                 <select class="control-select" id="sort-select" onchange="handleSort(this.value)">
-                    <option value="default">Sort: Date Added (Default)</option>
+                    <option value="artist-az" selected>Sort: Artist A-Z (Default)</option>
+                    <option value="default">Sort: Date Added</option>
                     <option value="score-high">Highest Rated</option>
                     <option value="score-low">Lowest Rated</option>
                     <option value="year-new">Release Year</option>
-                    <option value="artist-az">Artist (A-Z)</option>
                 </select>
             </div>
         </div>
@@ -450,7 +492,7 @@
     <div class="editor-container">
         
         <div class="editor-nav">
-            <button class="btn btn-outline" onclick="closeRatingEditor()">← Back</button>
+            <button class="btn btn-outline btn-with-icon" onclick="closeRatingEditor()"><svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m14 5-7 7 7 7"></path><path d="M7 12h13"></path></svg><span>Back</span></button>
             <button class="btn" onclick="saveRatings()">Save Ratings</button>
         </div>
 
@@ -480,11 +522,11 @@
         <div>
             <div class="track-list-header">
                 <h3 style="margin:0; font-size:16px;">Tracklist</h3>
-                <button class="btn btn-outline" style="padding: 6px 12px; font-size: 12px;" onclick="addTrack()">+ Add Track</button>
-                <button id="track-order-lock-button" class="btn btn-outline track-order-lock-button" style="padding: 6px 12px; font-size: 12px;" onclick="toggleTrackOrderLock()" aria-pressed="false" title="Hide track move controls while rating">✓ Confirm Tracklist</button>
+                <button class="btn btn-outline btn-with-icon" style="padding: 6px 12px; font-size: 12px;" onclick="addTrack()"><svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg><span>Add Track</span></button>
+                <button id="track-order-lock-button" class="btn btn-outline btn-with-icon track-order-lock-button" style="padding: 6px 12px; font-size: 12px;" onclick="toggleTrackOrderLock()" aria-pressed="false" title="Hide track move controls while rating"><svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4 4L19 6"></path></svg><span>Confirm Tracklist</span></button>
                 <div class="tracklist-search">
                     <input id="lastfm-tracklist-query" class="tracklist-search-input" type="text" placeholder="Album or Artist + Album" aria-label="Album search for tracklist" onkeydown="if (event.key === 'Enter') autoFillTracklist()">
-                    <button id="lastfm-tracklist-button" class="btn btn-outline tracklist-search-button" style="white-space: nowrap;" onclick="autoFillTracklist()" aria-label="Search and auto-fill tracklist" title="Search and auto-fill tracklist">↵</button>
+                    <button id="lastfm-tracklist-button" class="btn btn-outline tracklist-search-button" style="white-space: nowrap;" onclick="autoFillTracklist()" aria-label="Search and auto-fill tracklist" title="Search and auto-fill tracklist"><svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h11"></path><path d="m12 7 5 5-5 5"></path></svg></button>
                     <div class="tracklist-info">
                         <button id="lastfm-tracklist-info-button" class="tracklist-info-button" type="button" onclick="toggleLastFmTracklistHelp()" aria-label="How tracklist search works" aria-expanded="false">i</button>
                         <div id="lastfm-tracklist-help" class="tracklist-info-tooltip" role="tooltip">Type the album name and artist for best results. If you are looking for a specific version, like a Deluxe Edition, make sure to type 'Deluxe' in your search so the correct tracklist is fetched. You can manually edit, add, or sort tracks after auto-filling.</div>
@@ -500,8 +542,11 @@
 
 <script>
     // --- THEME INIT ---
+    const availableThemes = ['light', 'dark', 'sepia', 'midnight'];
     const savedTheme = localStorage.getItem('myAlbumTheme') || 'light';
-    if (savedTheme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+    if (availableThemes.includes(savedTheme) && savedTheme !== 'light') {
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    }
 
     // --- DATABASE INIT ---
     let albums = [];
@@ -549,13 +594,17 @@
 
     function updateTrackOrderLockButton() {
         const button = document.getElementById('track-order-lock-button');
-        button.textContent = trackOrderLocked ? '↕ Edit Order' : '✓ Confirm Tracklist';
+        const icon = trackOrderLocked
+            ? '<svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3v18"></path><path d="m4 7 4-4 4 4"></path><path d="m4 17 4 4 4-4"></path><path d="M16 7h4"></path><path d="M16 17h4"></path></svg>'
+            : '<svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4 4L19 6"></path></svg>';
+        button.innerHTML = `${icon}<span>${trackOrderLocked ? 'Edit Order' : 'Confirm Tracklist'}</span>`;
         button.setAttribute('aria-pressed', trackOrderLocked ? 'true' : 'false');
         button.title = trackOrderLocked ? 'Show track move controls' : 'Hide track move controls while rating';
     }
 
     function toggleTrackOrderLock() {
         trackOrderLocked = !trackOrderLocked;
+        if (trackOrderLocked) setLastFmTracklistStatus('');
         updateTrackOrderLockButton();
         renderEditorTracks();
     }
@@ -630,7 +679,7 @@
         }
 
         input.value = '';
-        const originalButtonText = button.textContent;
+        const originalButtonMarkup = button.innerHTML;
         button.disabled = true;
         button.textContent = 'Searching...';
         setLastFmTracklistStatus('Searching Last.fm...');
@@ -665,7 +714,7 @@
             setLastFmTracklistStatus('Couldn’t load a tracklist. Check the album name, your API key, and your connection, then try again.', 'error');
         } finally {
             button.disabled = false;
-            button.textContent = originalButtonText;
+            button.innerHTML = originalButtonMarkup;
         }
     }
 
@@ -673,8 +722,10 @@
     function toggleTheme() {
         const root = document.documentElement;
         const currentTheme = root.getAttribute('data-theme') || 'light';
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        root.setAttribute('data-theme', newTheme);
+        const currentIndex = availableThemes.indexOf(currentTheme);
+        const newTheme = availableThemes[(currentIndex + 1) % availableThemes.length];
+        if (newTheme === 'light') root.removeAttribute('data-theme');
+        else root.setAttribute('data-theme', newTheme);
         localStorage.setItem('myAlbumTheme', newTheme);
     }
 
@@ -878,10 +929,10 @@
                         ${noteIcon}
                     </button>
 
-                    <button class="icon-btn track-move-btn" onclick="moveTrack(${index}, -1)" title="Move track up" ${index === 0 ? 'disabled' : ''}>↑</button>
-                    <button class="icon-btn track-move-btn" onclick="moveTrack(${index}, 1)" title="Move track down" ${index === tracks.length - 1 ? 'disabled' : ''}>↓</button>
+                    <button class="icon-btn track-move-btn" onclick="moveTrack(${index}, -1)" title="Move track up" ${index === 0 ? 'disabled' : ''}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m18 15-6-6-6 6"></path></svg></button>
+                    <button class="icon-btn track-move-btn" onclick="moveTrack(${index}, 1)" title="Move track down" ${index === tracks.length - 1 ? 'disabled' : ''}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button>
                     
-                    <button class="icon-btn" style="color: #d93025; font-size:18px;" onclick="removeTrack(${index})" title="Remove">×</button>
+                    <button class="icon-btn" style="color: #d93025;" onclick="removeTrack(${index})" title="Remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 5l14 14"></path><path d="M19 5 5 19"></path></svg></button>
                 </div>
                 <div class="track-note-wrapper ${t.showNote ? 'active' : ''}">
                     <input type="text" class="track-note-input" value="${t.note || ''}" placeholder="Thoughts on this track..." onchange="updateTrackNote(${index}, this.value)">
@@ -1013,11 +1064,57 @@
         }
     }
 
-    function getBigThree(tracks) {
+    function getBigThreeTrackId(track, index) {
+        return track.bigThreeId || `${index}:${track.name || ''}`;
+    }
+
+    function getBigThreeOrder(album, mode) {
+        if (!album.bigThreeOrder) return [];
+        return Array.isArray(album.bigThreeOrder) ? album.bigThreeOrder : (album.bigThreeOrder[mode] || []);
+    }
+
+    function getBigThree(tracks, customOrder = []) {
         if(!tracks || tracks.length === 0) return [];
-        let valid = tracks.filter(t => t.rating !== "" && t.rating !== null && !isNaN(parseFloat(t.rating)));
-        valid.sort((a, b) => parseFloat(b.rating) - parseFloat(a.rating));
-        return valid.slice(0, 3);
+        let valid = tracks
+            .map((track, index) => ({ track, index }))
+            .filter(item => item.track.rating !== "" && item.track.rating !== null && !isNaN(parseFloat(item.track.rating)));
+        valid.sort((a, b) => {
+            const ratingDifference = parseFloat(b.track.rating) - parseFloat(a.track.rating);
+            if (ratingDifference !== 0) return ratingDifference;
+            const orderA = customOrder.indexOf(getBigThreeTrackId(a.track, a.index));
+            const orderB = customOrder.indexOf(getBigThreeTrackId(b.track, b.index));
+            if (orderA !== -1 || orderB !== -1) return (orderA === -1 ? Number.MAX_SAFE_INTEGER : orderA) - (orderB === -1 ? Number.MAX_SAFE_INTEGER : orderB);
+            return a.index - b.index;
+        });
+        return valid.slice(0, 3).map(item => ({ ...item.track, _bigThreeIndex: item.index }));
+    }
+
+    function toggleBigThreeEdit(albumId, mode) {
+        const album = albums.find(a => a.id === albumId);
+        if (!album) return;
+        const key = `${albumId}-${mode}`;
+        bigThreeEditing[key] = !bigThreeEditing[key];
+        document.getElementById(`card-body-${albumId}`).innerHTML = getCardContentHTML(album, mode);
+    }
+
+    function moveBigThreeTrack(albumId, mode, index, direction) {
+        const album = albums.find(a => a.id === albumId);
+        const tracks = mode === 'relisten' ? album.reListenTracks : album.tracks;
+        const bigThree = getBigThree(tracks, getBigThreeOrder(album, mode));
+        const destination = index + direction;
+        if (destination < 0 || destination >= bigThree.length || parseFloat(bigThree[index].rating) !== parseFloat(bigThree[destination].rating)) return;
+
+        bigThree.forEach((track, itemIndex) => {
+            const originalTrack = tracks[track._bigThreeIndex];
+            if (!originalTrack.bigThreeId) originalTrack.bigThreeId = `big-three-${Date.now()}-${track._bigThreeIndex}-${itemIndex}`;
+        });
+        [bigThree[index], bigThree[destination]] = [bigThree[destination], bigThree[index]];
+        if (!album.bigThreeOrder || Array.isArray(album.bigThreeOrder)) {
+            album.bigThreeOrder = { original: Array.isArray(album.bigThreeOrder) ? album.bigThreeOrder : [], relisten: [] };
+        }
+        album.bigThreeOrder[mode] = bigThree.map(track => tracks[track._bigThreeIndex].bigThreeId);
+        saveToStorage();
+        document.getElementById(`card-body-${albumId}`).innerHTML = getCardContentHTML(album, mode);
     }
     
     function getFavs(tracks) {
@@ -1025,7 +1122,15 @@
         return tracks.filter(t => t.isFav);
     }
 
-    function getCardContentHTML(album, mode) {
+    function getDefaultCardMode(album) {
+        const originalRating = parseFloat(album.rating);
+        const reListenRating = parseFloat(album.reListenRating);
+        return !isNaN(originalRating) && !isNaN(reListenRating) && reListenRating < originalRating ? 'relisten' : 'original';
+    }
+
+    const bigThreeEditing = {};
+
+    function getCardContentHTML(album, mode = getDefaultCardMode(album)) {
         let isRelisten = mode === 'relisten';
         let rating = isRelisten ? album.reListenRating : album.rating;
         let review = isRelisten ? album.reListenReview : album.review;
@@ -1043,7 +1148,7 @@
             }
 
             let favs = getFavs(tracks);
-            let bigThree = getBigThree(tracks);
+            let bigThree = getBigThree(tracks, getBigThreeOrder(album, mode));
             
             if (favs.length > 0 || bigThree.length > 0) {
                 let flexHtml = `<div class="card-highlights-container">`;
@@ -1052,15 +1157,23 @@
                     let bigThreeHtml = '';
                     const cleanCrown = `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink: 0; min-width: 13px; margin-right: 6px; margin-top: 3px;"><path d="M3 16l-3-10 7.104 4 4.896-8 4.896 8 7.104-4-3 10h-18zm0 2v4h18v-4h-18z"/></svg>`;
 
-                    bigThree.forEach(t => {
-                        bigThreeHtml += `<li style="display: flex; align-items: flex-start; margin-bottom: 8px;">${cleanCrown} <span style="line-height: 1.3; word-wrap: break-word; overflow-wrap: break-word;">${t.name}</span></li>`;
+                    const isEditingBigThree = !!bigThreeEditing[`${album.id}-${mode}`];
+                    const pencilIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>';
+                    const upIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m18 15-6-6-6 6"></path></svg>';
+                    const downIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>';
+
+                    bigThree.forEach((t, index) => {
+                        const canMoveUp = index > 0 && parseFloat(t.rating) === parseFloat(bigThree[index - 1].rating);
+                        const canMoveDown = index < bigThree.length - 1 && parseFloat(t.rating) === parseFloat(bigThree[index + 1].rating);
+                        const controls = isEditingBigThree ? `<span class="big-three-order-controls"><button class="big-three-order-btn" onclick="moveBigThreeTrack('${album.id}', '${mode}', ${index}, -1)" title="Move up${canMoveUp ? '' : ' (matching ratings only)'}" ${canMoveUp ? '' : 'disabled'}>${upIcon}</button><button class="big-three-order-btn" onclick="moveBigThreeTrack('${album.id}', '${mode}', ${index}, 1)" title="Move down${canMoveDown ? '' : ' (matching ratings only)'}" ${canMoveDown ? '' : 'disabled'}>${downIcon}</button></span>` : '';
+                        bigThreeHtml += `<li style="display: flex; align-items: flex-start; margin-bottom: 8px;">${cleanCrown}<span style="line-height: 1.3; word-wrap: break-word; overflow-wrap: break-word;">${t.name}</span>${controls}</li>`;
                     });
                     
                     flexHtml += `
                         <div class="highlight-col">
-                            <div class="section-label" style="margin-top: 0;">Big Three <span style="text-transform: none; font-size: 9px; opacity: 0.6; font-weight: normal;">(Highest Rated)</span></div>
+                            <div class="section-label big-three-label" style="margin-top: 0;">Big Three <span style="text-transform: none; font-size: 9px; opacity: 0.6; font-weight: normal;">(Highest Rated)</span><button class="big-three-edit-btn" onclick="toggleBigThreeEdit('${album.id}', '${mode}')" title="Edit Big Three Order" aria-label="Edit Big Three Order">${pencilIcon}</button></div>
                             <div class="card-favs">
-                                <ul class="big-three-list">${bigThreeHtml}</ul>
+                                <ul class="big-three-list ${isEditingBigThree ? 'is-editing' : ''}">${bigThreeHtml}</ul>
                             </div>
                         </div>`;
                 }
@@ -1123,7 +1236,7 @@
     }
 
     let currentFilter = 'all';
-    let currentSort = 'default';
+    let currentSort = 'artist-az';
 
     function handleFilter(val) { currentFilter = val; renderAlbums(); }
     function handleSort(val) { currentSort = val; renderAlbums(); }
@@ -1161,13 +1274,14 @@
             card.className = 'card';
             card.id = `card-wrapper-${album.id}`;
             
+            const defaultMode = getDefaultCardMode(album);
             let topBarHTML = '';
             if (album.reListenRating) {
                 topBarHTML = `
                 <div class="card-top-bar">
                     <div class="relisten-switch">
-                        <button class="relisten-btn active" onclick="flipCard('${album.id}', 'original', this)">Original</button>
-                        <button class="relisten-btn" onclick="flipCard('${album.id}', 'relisten', this)">Re-Listen</button>
+                        <button class="relisten-btn ${defaultMode === 'original' ? 'active' : ''}" onclick="flipCard('${album.id}', 'original', this)">Original</button>
+                        <button class="relisten-btn ${defaultMode === 'relisten' ? 'active' : ''}" onclick="flipCard('${album.id}', 'relisten', this)">Re-Listen</button>
                     </div>
                 </div>`;
             }
@@ -1175,7 +1289,7 @@
             card.innerHTML = `
                 ${topBarHTML}
                 <div class="card-content" id="card-body-${album.id}">
-                    ${getCardContentHTML(album, 'original')}
+                    ${getCardContentHTML(album, defaultMode)}
                 </div>
             `;
             grid.appendChild(card);
