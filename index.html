@@ -223,6 +223,14 @@
         .big-three-order-btn svg { width: 10px; height: 10px; }
         .big-three-order-btn:disabled { opacity: 0.3; cursor: not-allowed; }
         .big-three-list.is-editing li { gap: 6px; }
+        .big-three-picker { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+        .big-three-picker-label { display: block; margin-bottom: 7px; color: var(--text-light); font-size: 10px; line-height: 1.35; }
+        .big-three-candidates { display: flex; flex-wrap: wrap; gap: 5px; }
+        .big-three-candidate { position: relative; display: inline-flex; }
+        .big-three-candidate input { position: absolute; opacity: 0; pointer-events: none; }
+        .big-three-candidate span { max-width: 100%; padding: 3px 6px; border: 1px solid var(--border); border-radius: 3px; color: var(--text-light); cursor: pointer; font-size: 11px; line-height: 1.25; }
+        .big-three-candidate input:checked + span { border-color: var(--text); background: var(--text); color: var(--bg); }
+        .big-three-candidate input:focus-visible + span { outline: 2px solid var(--text); outline-offset: 2px; }
 
         /* Card Actions & Three Dots Menu */
         .card-actions {
@@ -1089,32 +1097,81 @@
         return valid.slice(0, 3).map(item => ({ ...item.track, _bigThreeIndex: item.index }));
     }
 
+    function getFiveStarTracks(tracks) {
+        return (tracks || []).map((track, index) => ({ ...track, _bigThreeIndex: index }))
+            .filter(track => parseFloat(track.rating) === 5);
+    }
+
+    function renderBigThreeCardBody(album, mode) {
+        document.getElementById(`card-body-${album.id}`).innerHTML = getCardContentHTML(album, mode);
+    }
+
     function toggleBigThreeEdit(albumId, mode) {
         const album = albums.find(a => a.id === albumId);
         if (!album) return;
+        const tracks = mode === 'relisten' ? album.reListenTracks : album.tracks;
         const key = `${albumId}-${mode}`;
-        bigThreeEditing[key] = !bigThreeEditing[key];
-        document.getElementById(`card-body-${albumId}`).innerHTML = getCardContentHTML(album, mode);
+
+        if (bigThreeEditing[key]) {
+            const selection = bigThreeEditing[key].selectedIndexes;
+            if (selection.length !== 3) {
+                alert('Choose exactly three 5.0 tracks before confirming the Big Three.');
+                return;
+            }
+
+            selection.forEach((trackIndex, orderIndex) => {
+                const track = tracks[trackIndex];
+                if (!track.bigThreeId) track.bigThreeId = `big-three-${Date.now()}-${trackIndex}-${orderIndex}`;
+            });
+            if (!album.bigThreeOrder || Array.isArray(album.bigThreeOrder)) {
+                album.bigThreeOrder = { original: Array.isArray(album.bigThreeOrder) ? album.bigThreeOrder : [], relisten: [] };
+            }
+            album.bigThreeOrder[mode] = selection.map(trackIndex => tracks[trackIndex].bigThreeId);
+            delete bigThreeEditing[key];
+            saveToStorage();
+        } else {
+            const fiveStarTracks = getFiveStarTracks(tracks);
+            const currentBigThree = getBigThree(tracks, getBigThreeOrder(album, mode));
+            bigThreeEditing[key] = {
+                selectedIndexes: currentBigThree
+                    .filter(track => parseFloat(track.rating) === 5)
+                    .map(track => track._bigThreeIndex)
+            };
+            if (fiveStarTracks.length < 3) {
+                alert('At least three 5.0 tracks are needed to set a custom Big Three.');
+                delete bigThreeEditing[key];
+            }
+        }
+        renderBigThreeCardBody(album, mode);
+    }
+
+    function toggleBigThreeSelection(albumId, mode, trackIndex, isSelected) {
+        const album = albums.find(a => a.id === albumId);
+        const state = bigThreeEditing[`${albumId}-${mode}`];
+        if (!album || !state) return;
+        const selectedIndexes = state.selectedIndexes;
+
+        if (isSelected && !selectedIndexes.includes(trackIndex)) {
+            if (selectedIndexes.length >= 3) {
+                alert('The Big Three can contain only three tracks. Unselect one first.');
+                renderBigThreeCardBody(album, mode);
+                return;
+            }
+            selectedIndexes.push(trackIndex);
+        } else if (!isSelected) {
+            state.selectedIndexes = selectedIndexes.filter(index => index !== trackIndex);
+        }
+        renderBigThreeCardBody(album, mode);
     }
 
     function moveBigThreeTrack(albumId, mode, index, direction) {
         const album = albums.find(a => a.id === albumId);
-        const tracks = mode === 'relisten' ? album.reListenTracks : album.tracks;
-        const bigThree = getBigThree(tracks, getBigThreeOrder(album, mode));
+        const state = bigThreeEditing[`${albumId}-${mode}`];
+        if (!album || !state) return;
         const destination = index + direction;
-        if (destination < 0 || destination >= bigThree.length || parseFloat(bigThree[index].rating) !== parseFloat(bigThree[destination].rating)) return;
-
-        bigThree.forEach((track, itemIndex) => {
-            const originalTrack = tracks[track._bigThreeIndex];
-            if (!originalTrack.bigThreeId) originalTrack.bigThreeId = `big-three-${Date.now()}-${track._bigThreeIndex}-${itemIndex}`;
-        });
-        [bigThree[index], bigThree[destination]] = [bigThree[destination], bigThree[index]];
-        if (!album.bigThreeOrder || Array.isArray(album.bigThreeOrder)) {
-            album.bigThreeOrder = { original: Array.isArray(album.bigThreeOrder) ? album.bigThreeOrder : [], relisten: [] };
-        }
-        album.bigThreeOrder[mode] = bigThree.map(track => tracks[track._bigThreeIndex].bigThreeId);
-        saveToStorage();
-        document.getElementById(`card-body-${albumId}`).innerHTML = getCardContentHTML(album, mode);
+        if (destination < 0 || destination >= state.selectedIndexes.length) return;
+        [state.selectedIndexes[index], state.selectedIndexes[destination]] = [state.selectedIndexes[destination], state.selectedIndexes[index]];
+        renderBigThreeCardBody(album, mode);
     }
     
     function getFavs(tracks) {
@@ -1157,23 +1214,35 @@
                     let bigThreeHtml = '';
                     const cleanCrown = `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink: 0; min-width: 13px; margin-right: 6px; margin-top: 3px;"><path d="M3 16l-3-10 7.104 4 4.896-8 4.896 8 7.104-4-3 10h-18zm0 2v4h18v-4h-18z"/></svg>`;
 
-                    const isEditingBigThree = !!bigThreeEditing[`${album.id}-${mode}`];
+                    const editingState = bigThreeEditing[`${album.id}-${mode}`];
+                    const isEditingBigThree = !!editingState;
+                    const visibleBigThree = isEditingBigThree
+                        ? editingState.selectedIndexes.map(index => ({ ...tracks[index], _bigThreeIndex: index })).filter(track => track && parseFloat(track.rating) === 5)
+                        : bigThree;
+                    const fiveStarTracks = getFiveStarTracks(tracks);
                     const pencilIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>';
+                    const checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4 4L19 6"></path></svg>';
                     const upIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m18 15-6-6-6 6"></path></svg>';
                     const downIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>';
 
-                    bigThree.forEach((t, index) => {
-                        const canMoveUp = index > 0 && parseFloat(t.rating) === parseFloat(bigThree[index - 1].rating);
-                        const canMoveDown = index < bigThree.length - 1 && parseFloat(t.rating) === parseFloat(bigThree[index + 1].rating);
-                        const controls = isEditingBigThree ? `<span class="big-three-order-controls"><button class="big-three-order-btn" onclick="moveBigThreeTrack('${album.id}', '${mode}', ${index}, -1)" title="Move up${canMoveUp ? '' : ' (matching ratings only)'}" ${canMoveUp ? '' : 'disabled'}>${upIcon}</button><button class="big-three-order-btn" onclick="moveBigThreeTrack('${album.id}', '${mode}', ${index}, 1)" title="Move down${canMoveDown ? '' : ' (matching ratings only)'}" ${canMoveDown ? '' : 'disabled'}>${downIcon}</button></span>` : '';
+                    visibleBigThree.forEach((t, index) => {
+                        const canMoveUp = index > 0;
+                        const canMoveDown = index < visibleBigThree.length - 1;
+                        const controls = isEditingBigThree ? `<span class="big-three-order-controls"><button class="big-three-order-btn" onclick="moveBigThreeTrack('${album.id}', '${mode}', ${index}, -1)" title="Move up" ${canMoveUp ? '' : 'disabled'}>${upIcon}</button><button class="big-three-order-btn" onclick="moveBigThreeTrack('${album.id}', '${mode}', ${index}, 1)" title="Move down" ${canMoveDown ? '' : 'disabled'}>${downIcon}</button></span>` : '';
                         bigThreeHtml += `<li style="display: flex; align-items: flex-start; margin-bottom: 8px;">${cleanCrown}<span style="line-height: 1.3; word-wrap: break-word; overflow-wrap: break-word;">${t.name}</span>${controls}</li>`;
                     });
+                    const pickerHtml = isEditingBigThree ? `
+                        <div class="big-three-picker">
+                            <span class="big-three-picker-label">Choose exactly three 5.0 tracks, then use the arrows above to set their order.</span>
+                            <div class="big-three-candidates">${fiveStarTracks.map(track => `<label class="big-three-candidate"><input type="checkbox" ${editingState.selectedIndexes.includes(track._bigThreeIndex) ? 'checked' : ''} onchange="toggleBigThreeSelection('${album.id}', '${mode}', ${track._bigThreeIndex}, this.checked)"><span>${track.name || 'Untitled Track'}</span></label>`).join('')}</div>
+                        </div>` : '';
                     
                     flexHtml += `
                         <div class="highlight-col">
-                            <div class="section-label big-three-label" style="margin-top: 0;">Big Three <span style="text-transform: none; font-size: 9px; opacity: 0.6; font-weight: normal;">(Highest Rated)</span><button class="big-three-edit-btn" onclick="toggleBigThreeEdit('${album.id}', '${mode}')" title="Edit Big Three Order" aria-label="Edit Big Three Order">${pencilIcon}</button></div>
+                            <div class="section-label big-three-label" style="margin-top: 0;">Big Three <span style="text-transform: none; font-size: 9px; opacity: 0.6; font-weight: normal;">(Highest Rated)</span><button class="big-three-edit-btn" onclick="toggleBigThreeEdit('${album.id}', '${mode}')" title="${isEditingBigThree ? 'Confirm Big Three Order' : 'Edit Big Three Order'}" aria-label="${isEditingBigThree ? 'Confirm Big Three Order' : 'Edit Big Three Order'}">${isEditingBigThree ? checkIcon : pencilIcon}</button></div>
                             <div class="card-favs">
                                 <ul class="big-three-list ${isEditingBigThree ? 'is-editing' : ''}">${bigThreeHtml}</ul>
+                                ${pickerHtml}
                             </div>
                         </div>`;
                 }
